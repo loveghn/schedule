@@ -2,6 +2,7 @@ import { createId, getTodayKey } from './storage.js';
 import { getNextRecurrenceDate, isRecurrenceWithinEnd } from './recurrence.js';
 
 const seriesIdOf = (task) => task.seriesId || task.id;
+export const HABIT_SCHEDULE_DAYS = 14;
 
 function shiftDateKey(dateKey, amount) {
   const [year, month, day] = dateKey.split('-').map(Number);
@@ -28,7 +29,7 @@ export function getTrackedHabits(data) {
  * Calculate display-only habit occurrences for a bounded date window.
  * This function is intentionally pure: it never creates tasks or changes its inputs.
  */
-export function calculateHabitSchedule(habits, baseDate, dayCount = 30) {
+export function calculateHabitSchedule(habits, baseDate, dayCount = HABIT_SCHEDULE_DAYS, habitLogs = []) {
   const days = Math.max(0, Math.floor(Number(dayCount) || 0));
   if (!baseDate || !days) return habits.map((habit) => ({ habitId: habit.id, occurrences: [] }));
 
@@ -64,7 +65,7 @@ export function calculateHabitSchedule(habits, baseDate, dayCount = 30) {
           date,
           occurrenceNumber,
           task,
-          completed: Boolean(task?.completed),
+          completed: Boolean(task?.completed || habitLogs.some((log) => log?.habitId === habit.id && log.date === date && log.completed)),
           failed: Boolean(task?.failed),
           isForecast: !task,
         });
@@ -78,6 +79,17 @@ export function calculateHabitSchedule(habits, baseDate, dayCount = 30) {
 
     return { habitId: habit.id, occurrences: scheduled };
   });
+}
+
+/** Share the same display-only schedule and completion source across Dashboard and Habits. */
+export function getHabitSchedule(data, baseDate, dayCount = HABIT_SCHEDULE_DAYS) {
+  const habits = getTrackedHabits(data);
+  const schedules = new Map(calculateHabitSchedule(habits, baseDate, dayCount, data.habitLogs || [])
+    .map((schedule) => [schedule.habitId, schedule.occurrences]));
+  return habits.map((habit) => ({
+    ...habit,
+    scheduledOccurrences: schedules.get(habit.id) || [],
+  }));
 }
 
 export function syncHabitLog(data, task) {

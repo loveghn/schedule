@@ -84,14 +84,14 @@ $border-heavy: 4px solid $color-black;
 $sidebar-width: 260px;
 $sidebar-width-tablet: 220px;
 
-$header-height: 76px;
+$header-height: 70px;
 $header-height-mobile: 56px;
 
 $detail-panel-width: 360px;
 
-$page-padding: 28px;
+$page-padding: 36px;
 $page-padding-tablet: 24px;
-$page-padding-mobile: 16px;
+$page-padding-mobile: 24px;
 
 // Breakpoints
 $breakpoint-mobile: 767px;
@@ -160,6 +160,5 @@ $transition-bold: 350ms cubic-bezier(0.76, 0, 0.24, 1);
 @media (max-width: #{$breakpoint-mobile}) {
   :root {
     --page-padding: #{$page-padding-mobile};
-    --header-height: #{$header-height-mobile};
   }
 }

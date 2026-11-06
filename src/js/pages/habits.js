@@ -1,5 +1,5 @@
 import { getData, getTodayKey, saveData } from '../core/storage.js';
-import { calculateHabitSchedule, ensureHabitOccurrences, getHabitStreak, getTrackedHabits, syncHabitLog } from '../core/habits.js';
+import { ensureHabitOccurrences, getHabitSchedule, getHabitStreak, getTrackedHabits, HABIT_SCHEDULE_DAYS, syncHabitLog } from '../core/habits.js';
 import { showToast } from '../components/toast.js';
 import { renderPageHeader } from '../components/page-header.js';
 
@@ -63,28 +63,25 @@ function renderWeeklyTracker(habits, today) {
 }
 
 function renderUpcoming(habits, today) {
-  const until = addDays(today, 14);
+  const until = addDays(today, HABIT_SCHEDULE_DAYS - 1);
   const upcoming = habits.flatMap((habit) => habit.scheduledOccurrences
     .filter((item) => item.date > today && item.date <= until && !item.completed && !item.failed)
     .map((item) => ({ habit, task: item.task || { date: item.date } })))
     .sort((a, b) => a.task.date.localeCompare(b.task.date) || a.habit.title.localeCompare(b.habit.title, 'ko'));
-  if (!upcoming.length) return '<li class="habit-upcoming__empty">앞으로 14일 동안 예정된 습관이 없습니다.</li>';
+  if (!upcoming.length) return '<li class="habit-upcoming__empty">오늘 포함 14일 동안 예정된 습관이 없습니다.</li>';
   return upcoming.map(({ habit, task }) => `<li class="habit-upcoming__item"><time datetime="${task.date}"><strong>${Number(task.date.slice(-2))}</strong><span>${escapeHTML(formatDate(task.date, { month: 'short', weekday: 'short' }))}</span></time><div><strong>${escapeHTML(habit.title)}</strong><span>${escapeHTML(recurrenceLabel(habit.recurrence))}</span></div></li>`).join('');
 }
 
-export function renderHabits() {
+export function renderHabits({ today = getTodayKey() } = {}) {
   const data = getData();
-  const today = getTodayKey();
-  const trackedHabits = getTrackedHabits(data);
-  const schedules = new Map(calculateHabitSchedule(trackedHabits, today, 30).map((item) => [item.habitId, item.occurrences]));
-  const habits = trackedHabits.map((habit) => ({ ...habit, scheduledOccurrences: schedules.get(habit.id) || [] }));
-  const todayTasks = habits.flatMap((habit) => habit.scheduledOccurrences.filter((item) => item.date === today).map((item) => ({
+  const habits = getHabitSchedule(data, today, HABIT_SCHEDULE_DAYS);
+  const todayTasks = habits.flatMap((habit) => habit.scheduledOccurrences.filter((item) => item.date === today).map((occurrence) => ({
     habit,
-    task: item.task || { date: item.date, completed: false, failed: false },
+    occurrence,
   })))
     .sort((a, b) => a.habit.title.localeCompare(b.habit.title, 'ko'));
   const week = progressForWeek(habits, today);
-  const completedToday = todayTasks.filter(({ task }) => task.completed).length;
+  const completedToday = todayTasks.filter(({ occurrence }) => occurrence.completed).length;
   const longestStreak = habits.reduce((longest, habit) => Math.max(longest, getHabitStreak(habit, today)), 0);
   const todayContent = todayTasks.length
     ? `<ul class="habit-today-list">${todayTasks.map(({ habit }) => renderTodayItem(habit)).join('')}</ul>`
@@ -111,7 +108,7 @@ export function renderHabits() {
         <div class="habit-legend"><span><i class="is-completed"></i>완료</span><span><i class="is-pending"></i>오늘</span><span><i class="is-missed"></i>미완료</span><span><i class="is-upcoming"></i>예정</span></div>
       </section>
       <section class="habit-section habit-section--upcoming" aria-labelledby="habit-upcoming-title">
-        <div class="habit-section__heading"><div><p class="habit-section__index">NEXT 14 DAYS</p><h2 id="habit-upcoming-title">다가오는 습관</h2></div><span>앞으로 14일</span></div>
+        <div class="habit-section__heading"><div><p class="habit-section__index">NEXT 14 DAYS</p><h2 id="habit-upcoming-title">다가오는 습관</h2></div><span>오늘 포함 14일</span></div>
         <ul class="habit-upcoming">${renderUpcoming(habits, today)}</ul>
       </section>
     </div>

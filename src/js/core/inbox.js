@@ -60,3 +60,16 @@ export function deleteInboxItem(id) {
   saveOrThrow(data);
   return true;
 }
+
+/** Add the newly created task and consume its Inbox source in the same data snapshot. */
+export function convertInboxItemToTask(data, inboxId, task) {
+  if (!data || !Array.isArray(data.tasks) || !Array.isArray(data.inbox) || !task || typeof task !== 'object') {
+    throw new TypeError('Inbox 전환 데이터가 올바르지 않습니다.');
+  }
+  const index = data.inbox.findIndex((item) => item.id === inboxId);
+  if (index < 0) return false;
+
+  data.tasks.push(task);
+  data.inbox.splice(index, 1);
+  return true;
+}

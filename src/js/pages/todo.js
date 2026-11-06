@@ -1,6 +1,7 @@
 import { getData, saveData, createId, getTodayKey } from '../core/storage.js';
-import { getNextRecurrenceDate, isRecurrenceWithinEnd } from '../core/recurrence.js';
-import { ensureHabitOccurrences, syncHabitLog } from '../core/habits.js';
+import { ensureHabitOccurrences } from '../core/habits.js';
+import { setTaskStatus } from '../core/task-status.js';
+import { convertInboxItemToTask, deleteInboxItem, updateInboxItem } from '../core/inbox.js';
 import { ensureSettings, isHexColor } from '../core/settings.js';
 import { enhanceDateInputs } from '../components/date-picker.js';
 import { createModal } from '../components/modal.js';
@@ -14,6 +15,7 @@ let activeFilter = 'all';
 let activePriority = 'all';
 let activeCategory = 'all';
 let activePage = 1;
+let activeInboxPage = 1;
 let currentModal = null;
 
 const FILTERS = [
@@ -108,6 +110,7 @@ function renderTask(task) {
 
 export function renderTodo() {
   const data = getData();
+  const activeTab = typeof window !== 'undefined' && window.location.hash === '#inbox' ? 'inbox' : 'todo';
   const settingsChanged = ensureSettings(data);
   const habitOccurrencesChanged = ensureHabitOccurrences(data);
   if ((settingsChanged || habitOccurrencesChanged) && !saveData(data)) {
@@ -120,6 +123,10 @@ export function renderTodo() {
   const pageCount = Math.max(1, Math.ceil(visibleTasks.length / PAGINATION_PAGE_SIZE));
   activePage = Math.min(activePage, pageCount);
   const pageTasks = visibleTasks.slice((activePage - 1) * PAGINATION_PAGE_SIZE, activePage * PAGINATION_PAGE_SIZE);
+  const inboxItems = [...data.inbox].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
+  const inboxPageCount = Math.max(1, Math.ceil(inboxItems.length / PAGINATION_PAGE_SIZE));
+  activeInboxPage = Math.min(activeInboxPage, inboxPageCount);
+  const pageInboxItems = inboxItems.slice((activeInboxPage - 1) * PAGINATION_PAGE_SIZE, activeInboxPage * PAGINATION_PAGE_SIZE);
   const completed = tasks.filter((task) => task.completed).length;
   const failed = tasks.filter((task) => !task.completed && task.failed).length;
   const pending = tasks.length - completed - failed;
@@ -137,7 +144,13 @@ export function renderTodo() {
         <div class="todo-summary__item"><span>완료율</span><strong>${rate}<small>%</small></strong></div>
       </section>
 
-      <section class="todo-workspace" aria-label="할 일 목록">
+      <div class="todo-tabs" role="tablist" aria-label="To-do 목록 종류">
+        <button type="button" class="todo-tab ${activeTab === 'todo' ? 'is-active' : ''}" role="tab" id="todo-tab-tasks" aria-selected="${activeTab === 'todo'}" aria-controls="todo-tab-panel" data-todo-view="todo">To-do</button>
+        <button type="button" class="todo-tab ${activeTab === 'inbox' ? 'is-active' : ''}" role="tab" id="todo-tab-inbox" aria-selected="${activeTab === 'inbox'}" aria-controls="todo-tab-panel" data-todo-view="inbox">Inbox <span>${inboxItems.length}</span></button>
+      </div>
+
+      <section class="todo-workspace" id="todo-tab-panel" role="tabpanel" aria-labelledby="${activeTab === 'inbox' ? 'todo-tab-inbox' : 'todo-tab-tasks'}" aria-label="${activeTab === 'inbox' ? 'Inbox 목록' : '할 일 목록'}">
+        ${activeTab === 'inbox' ? renderInboxList(pageInboxItems, activeInboxPage, inboxItems.length) : `
         <div class="todo-toolbar">
           <div class="todo-filters" role="group" aria-label="할 일 필터">
             ${FILTERS.map((filter) => `<button type="button" class="todo-filter ${activeFilter === filter.value ? 'is-active' : ''}" data-todo-filter="${filter.value}" aria-pressed="${activeFilter === filter.value}">${filter.label}</button>`).join('')}
@@ -164,9 +177,22 @@ export function renderTodo() {
         ${visibleTasks.length
           ? `<ul class="todo-list">${pageTasks.map(renderTask).join('')}</ul>${renderPagination({ page: activePage, totalItems: visibleTasks.length, attribute: 'todo' })}`
           : `<div class="todo-empty"><strong>표시할 할 일이 없습니다.</strong><span>새로운 할 일을 추가하거나 다른 필터를 선택하세요.</span></div>`}
+        `}
       </section>
     </article>
   `;
+}
+
+function renderInboxList(items, page, totalItems) {
+  if (!totalItems) {
+    return '<div class="todo-empty todo-inbox-empty"><strong>Inbox가 비어 있습니다.</strong><span>개요의 빠른 기록으로 생각을 먼저 저장해 보세요.</span></div>';
+  }
+  const rows = items.map((item) => {
+    const date = new Date(item.createdAt);
+    const created = Number.isNaN(date.getTime()) ? '' : new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(date);
+    return `<li class="todo-inbox-item" data-inbox-item="${escapeHTML(item.id)}"><div class="todo-inbox-item__content"><strong>${escapeHTML(item.text)}</strong><time datetime="${escapeHTML(item.createdAt)}">${escapeHTML(created)}</time></div><div class="todo-inbox-item__actions"><button type="button" class="btn btn--primary btn--small" data-inbox-convert="${escapeHTML(item.id)}">할 일로 전환</button><button type="button" class="btn btn--outline btn--icon" data-inbox-edit="${escapeHTML(item.id)}" aria-label="Inbox 항목 수정" title="수정"><span class="material-symbols-outlined" aria-hidden="true">edit</span></button><button type="button" class="btn btn--danger btn--icon" data-inbox-delete="${escapeHTML(item.id)}" aria-label="Inbox 항목 삭제" title="삭제"><span class="material-symbols-outlined" aria-hidden="true">delete</span></button></div></li>`;
+  }).join('');
+  return `<div class="todo-list-heading"><h2>INBOX</h2><span>${totalItems} ITEMS</span></div><ul class="todo-inbox-list">${rows}</ul>${renderPagination({ page, totalItems, attribute: 'inbox' })}`;
 }
 
 function createField(label, name, type = 'text', value = '', options = null) {
@@ -205,37 +231,7 @@ function createField(label, name, type = 'text', value = '', options = null) {
   return wrapper;
 }
 
-function createNextRecurringTask(data, task, now) {
-  const recurrence = task.recurrence;
-  if (!recurrence || recurrence.frequency === 'none') return null;
-
-  const nextDate = getNextRecurrenceDate(task.date, recurrence);
-  if (!nextDate) return null;
-  const nextOccurrence = Number(task.occurrenceNumber || 1) + 1;
-  if (!isRecurrenceWithinEnd(recurrence, nextDate, nextOccurrence)) return null;
-
-  const seriesId = task.seriesId || task.id;
-  const alreadyCreated = data.tasks.some((item) => item.seriesId === seriesId && Number(item.occurrenceNumber) === nextOccurrence);
-  if (alreadyCreated) return null;
-
-  task.seriesId = seriesId;
-  task.occurrenceNumber = Number(task.occurrenceNumber || 1);
-  return {
-    ...task,
-    id: createId('task'),
-    seriesId,
-    occurrenceNumber: nextOccurrence,
-    generatedFromId: task.id,
-    date: nextDate,
-    description: '',
-    completed: false,
-    failed: false,
-    createdAt: now,
-    updatedAt: now,
-  };
-}
-
-export function openTaskModal(task = null) {
+export function openTaskModal(task = null, { initialTitle = '', inboxItemId = '' } = {}) {
   currentModal?.destroy();
 
   const isEdit = Boolean(task);
@@ -244,7 +240,7 @@ export function openTaskModal(task = null) {
   form.id = createId('todo-form');
 
   form.append(
-    createField('할 일 제목', 'title', 'text', task?.title || ''),
+    createField('할 일 제목', 'title', 'text', task?.title || initialTitle),
     createField('상세 내용', 'description', 'textarea', task?.description || ''),
   );
   const titleField = form.querySelector('[name="title"]').closest('.form-group');
@@ -422,14 +418,22 @@ export function openTaskModal(task = null) {
       }
     } else {
       const id = createId('task');
-      data.tasks.push({
+      const newTask = {
         id,
         ...values,
         ...(repeatFrequency !== 'none' ? { seriesId: id, occurrenceNumber: 1 } : {}),
         completed: false,
         failed: false,
         createdAt: now,
-      });
+      };
+      if (inboxItemId) {
+        if (!convertInboxItemToTask(data, inboxItemId, newTask)) {
+          showToast({ type: 'warning', title: 'Inbox 항목을 찾을 수 없습니다.', message: '목록을 새로 고친 뒤 다시 시도하세요.' });
+          return;
+        }
+      } else {
+        data.tasks.push(newTask);
+      }
     }
 
     if (trackHabit) ensureHabitOccurrences(data);
@@ -440,13 +444,60 @@ export function openTaskModal(task = null) {
     }
 
     modal.destroy();
-    if (document.querySelector('.todo-page')) refreshTodo({ scrollToTop: true });
+    if (inboxItemId) document.dispatchEvent(new CustomEvent('planner:datachange'));
+    else if (document.querySelector('.todo-page')) refreshTodo({ scrollToTop: true });
     else document.dispatchEvent(new CustomEvent('planner:datachange'));
-    showToast({ type: 'success', title: isEdit ? '할 일을 수정했습니다.' : '할 일을 추가했습니다.' });
+    showToast({ type: 'success', title: isEdit ? '할 일을 수정했습니다.' : inboxItemId ? 'Inbox 항목을 할 일로 전환했습니다.' : '할 일을 추가했습니다.' });
   });
 
   currentModal.open();
   form.querySelector('[name="title"]').focus();
+}
+
+function openInboxEditModal(item) {
+  const form = document.createElement('form');
+  form.className = 'todo-inbox-edit-form';
+  const field = createField('Inbox 내용', 'text', 'text', item.text);
+  field.querySelector('input').maxLength = 500;
+  form.append(field);
+
+  const footer = document.createElement('div');
+  footer.className = 'form-actions';
+  const cancel = createButton({ label: '취소', variant: 'outline' });
+  const save = createButton({ label: '수정 저장', variant: 'primary', type: 'submit' });
+  save.setAttribute('form', 'todo-inbox-edit-form');
+  form.id = 'todo-inbox-edit-form';
+  footer.append(cancel, save);
+
+  const modal = createModal({
+    title: 'Inbox 항목 수정',
+    description: '빠른 기록 내용을 수정하세요.',
+    content: form,
+    footer,
+  });
+  modal.element.addEventListener('close', () => modal.element.remove(), { once: true });
+  cancel.addEventListener('click', () => modal.close('cancel'));
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const text = String(new FormData(form).get('text') || '').trim();
+    if (!text) {
+      form.elements.namedItem('text').focus();
+      showToast({ type: 'warning', title: '내용을 입력하세요.' });
+      return;
+    }
+    try {
+      const updated = updateInboxItem(item.id, text);
+      if (!updated) throw new Error('Inbox 항목을 찾을 수 없습니다.');
+    } catch (error) {
+      showToast({ type: 'error', title: 'Inbox 항목을 수정하지 못했습니다.', message: error.message });
+      return;
+    }
+    modal.close('saved');
+    document.dispatchEvent(new CustomEvent('planner:datachange'));
+    showToast({ type: 'success', title: 'Inbox 항목을 수정했습니다.' });
+  });
+  modal.open();
+  form.elements.namedItem('text').focus();
 }
 
 function refreshTodo({ scrollToTop = false } = {}) {
@@ -460,6 +511,59 @@ function refreshTodo({ scrollToTop = false } = {}) {
 export function initTodoPage() {
   const outlet = document.querySelector('#page-outlet');
   if (!outlet || !outlet.querySelector('.todo-page')) return;
+
+  outlet.querySelectorAll('[data-todo-view]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const nextTab = button.dataset.todoView;
+      const nextUrl = `${window.location.pathname}${nextTab === 'inbox' ? '#inbox' : ''}`;
+      window.history.replaceState(window.history.state, '', nextUrl);
+      if (nextTab === 'inbox') activeInboxPage = 1;
+      refreshTodo({ scrollToTop: true });
+    });
+  });
+
+  outlet.querySelectorAll('[data-pagination="inbox"]').forEach((button) => {
+    button.addEventListener('click', () => {
+      if (button.disabled) return;
+      activeInboxPage = Number(button.dataset.page);
+      refreshTodo();
+      outlet.querySelector('.todo-list-heading')?.scrollIntoView({ block: 'start' });
+    });
+  });
+
+  outlet.querySelectorAll('[data-inbox-convert]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const item = getData().inbox.find((entry) => entry.id === button.dataset.inboxConvert);
+      if (!item) {
+        showToast({ type: 'warning', title: 'Inbox 항목을 찾을 수 없습니다.' });
+        document.dispatchEvent(new CustomEvent('planner:datachange'));
+        return;
+      }
+      openTaskModal(null, { initialTitle: item.text, inboxItemId: item.id });
+    });
+  });
+
+  outlet.querySelectorAll('[data-inbox-edit]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const item = getData().inbox.find((entry) => entry.id === button.dataset.inboxEdit);
+      if (item) openInboxEditModal(item);
+    });
+  });
+
+  outlet.querySelectorAll('[data-inbox-delete]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const item = getData().inbox.find((entry) => entry.id === button.dataset.inboxDelete);
+      if (!item || !window.confirm(`“${item.text}” Inbox 항목을 삭제할까요?`)) return;
+      try {
+        if (!deleteInboxItem(item.id)) return;
+      } catch (error) {
+        showToast({ type: 'error', title: 'Inbox 항목을 삭제하지 못했습니다.', message: error.message });
+        return;
+      }
+      document.dispatchEvent(new CustomEvent('planner:datachange'));
+      showToast({ type: 'success', title: 'Inbox 항목을 삭제했습니다.' });
+    });
+  });
 
   outlet.querySelectorAll('[data-todo-filter]').forEach((button) => {
     button.addEventListener('click', () => {
@@ -544,24 +648,15 @@ export function initTodoPage() {
       const data = getData();
       const task = data.tasks.find((item) => item.id === checkbox.dataset.todoToggle);
       if (!task) return;
-      const originalTask = { ...task };
-      const now = new Date().toISOString();
-      task.completed = checkbox.checked;
-      task.failed = false;
-      task.updatedAt = now;
-      const nextTask = checkbox.checked ? createNextRecurringTask(data, task, now) : null;
-      if (nextTask) data.tasks.push(nextTask);
-      syncHabitLog(data, task);
-      if (task.trackHabit) ensureHabitOccurrences(data);
+      const wasCompleted = task.completed;
+      const result = setTaskStatus(data, task.id, checkbox.checked ? 'completed' : 'pending');
       if (!saveData(data)) {
-        Object.assign(task, originalTask);
-        if (nextTask) data.tasks = data.tasks.filter((item) => item.id !== nextTask.id);
-        checkbox.checked = !checkbox.checked;
+        checkbox.checked = Boolean(wasCompleted);
         showToast({ type: 'error', title: '상태를 저장하지 못했습니다.' });
         return;
       }
       refreshTodo();
-      if (nextTask) showToast({ type: 'success', title: `다음 반복 할 일을 ${nextTask.date}에 추가했습니다.` });
+      if (result?.nextTask) showToast({ type: 'success', title: `다음 반복 할 일을 ${result.nextTask.date}에 추가했습니다.` });
     });
   });
 
@@ -570,16 +665,9 @@ export function initTodoPage() {
       const data = getData();
       const task = data.tasks.find((item) => item.id === button.dataset.todoFail);
       if (!task) return;
-      const originalTask = { ...task };
-      const now = new Date().toISOString();
       const isFailed = !task.failed || task.completed;
-      task.completed = false;
-      task.failed = isFailed;
-      task.updatedAt = now;
-      syncHabitLog(data, task);
-      if (task.trackHabit) ensureHabitOccurrences(data);
+      setTaskStatus(data, task.id, isFailed ? 'failed' : 'pending');
       if (!saveData(data)) {
-        Object.assign(task, originalTask);
         showToast({ type: 'error', title: '상태를 저장하지 못했습니다.' });
         return;
       }

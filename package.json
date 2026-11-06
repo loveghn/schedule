@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node --test src/js/core/habits.test.js src/js/core/inbox.test.js src/js/pages/calendar.test.js src/js/pages/overview.test.js src/js/pages/settings.test.js"
+    "test": "node --test src/js/core/storage.test.js src/js/core/habits.test.js src/js/core/inbox.test.js src/js/core/statistics.test.js src/js/core/task-status.test.js src/js/pages/calendar.test.js src/js/pages/overview.test.js src/js/pages/settings.test.js src/js/pages/todo.test.js"
   },
   "devDependencies": {
     "sass": "^1.83.0",

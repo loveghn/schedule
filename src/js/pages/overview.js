@@ -1,4 +1,5 @@
 import { getData, getTodayKey } from '../core/storage.js';
+import { getHabitSchedule, HABIT_SCHEDULE_DAYS } from '../core/habits.js';
 import { addInboxItem } from '../core/inbox.js';
 import { renderPageHeader } from '../components/page-header.js';
 import { showToast } from '../components/toast.js';
@@ -54,10 +55,9 @@ function renderInboxItem(item) {
   return `<li class="overview-inbox__item"><time datetime="${escapeHTML(item.createdAt)}">${escapeHTML(createdLabel)}</time><span>${escapeHTML(item.text)}</span></li>`;
 }
 
-export function renderOverview() {
+export function renderOverview({ now = new Date() } = {}) {
   const data = getData();
   const inboxItems = getRecentInboxItems(data.inbox);
-  const now = new Date();
   const todayKey = getTodayKey(now);
   const todayTasks = data.tasks.filter((task) => task.date === todayKey);
   const openTasks = todayTasks.filter((task) => !task.completed && !task.failed);
@@ -75,8 +75,10 @@ export function renderOverview() {
     const bTime = b.allDay ? '' : b.startTime || b.time || '99:99';
     return aTime.localeCompare(bTime);
   });
-  const todayHabitTasks = data.tasks.filter((task) => task.trackHabit && task.date === todayKey && task.recurrence?.frequency !== 'none');
-  const completedHabitIds = new Set(todayHabitTasks.filter((task) => task.completed).map((task) => task.seriesId || task.id));
+  const todayHabits = getHabitSchedule(data, todayKey, HABIT_SCHEDULE_DAYS)
+    .map((habit) => ({ habit, occurrence: habit.scheduledOccurrences.find((item) => item.date === todayKey) }))
+    .filter(({ occurrence }) => occurrence);
+  const completedHabitIds = new Set(todayHabits.filter(({ occurrence }) => occurrence.completed).map(({ habit }) => habit.id));
   const todayDate = new Date(`${todayKey}T00:00:00`);
   const nextWeek = new Date(todayDate);
   nextWeek.setDate(nextWeek.getDate() + 7);
@@ -85,7 +87,7 @@ export function renderOverview() {
   const upcomingTasks = data.tasks.filter((task) => !task.completed && !task.failed && task.date > todayKey && task.date <= nextWeekKey).sort((a, b) => a.date.localeCompare(b.date) || ({ high: 0, normal: 1, low: 2 }[a.priority || 'normal'] - { high: 0, normal: 1, low: 2 }[b.priority || 'normal'])).slice(0, 5);
 
   const scheduleMarkup = todayEvents.length ? todayEvents.map(renderScheduleItem).join('') : renderEmpty('오늘 예정된 일정이 없습니다.');
-  const habitMarkup = todayHabitTasks.length ? todayHabitTasks.slice(0, 6).map((task) => renderHabit({ name: task.title }, task.completed, task.failed)).join('') : renderEmpty('오늘 예정된 습관이 없습니다.');
+  const habitMarkup = todayHabits.length ? todayHabits.slice(0, 6).map(({ habit, occurrence }) => renderHabit({ name: habit.title }, occurrence.completed, occurrence.failed)).join('') : renderEmpty('오늘 예정된 습관이 없습니다.');
   const upcomingMarkup = upcomingEvents.length ? upcomingEvents.map(renderUpcoming).join('') : renderEmpty('앞으로 7일 안에 예정된 일정이 없습니다.');
   const upcomingTasksMarkup = upcomingTasks.length ? upcomingTasks.map(renderUpcomingTask).join('') : renderEmpty('앞으로 7일 안에 예정된 할 일이 없습니다.');
   const inboxPreviewMarkup = inboxItems.length ? inboxItems.map(renderInboxItem).join('') : '<li class="overview-inbox__empty">아직 미분류 항목이 없습니다.</li>';
@@ -94,13 +96,14 @@ export function renderOverview() {
     ${renderPageHeader('overview', { meta: todayKey, metaDateTime: todayKey, eyebrow: formatDate(now), variant: 'overview' })}
 
     <div class="overview-focus-progress">
-      <section class="overview-panel overview-focus" aria-labelledby="overview-focus-title"><div class="overview-panel__heading"><p class="overview-section__index">TODAY'S FOCUS</p><h2 id="overview-focus-title">오늘의 핵심 목표</h2></div>${focusTask ? `<div class="overview-focus__task"><span class="overview-focus__priority todo-priority--${escapeHTML(focusTask.priority || 'normal')}">${escapeHTML(({ high: '높음', normal: '보통', low: '낮음' })[focusTask.priority || 'normal'])}</span><div id="overview-focus-content" class="overview-focus__content" data-focus-content><strong>${escapeHTML(focusTask.title)}</strong>${focusTask.description ? `<span> · ${escapeHTML(focusTask.description)}</span>` : ''}</div><button type="button" class="btn btn--outline btn--small overview-focus__toggle" data-focus-toggle aria-controls="overview-focus-content" aria-expanded="false" hidden>더보기</button></div>` : `<p class="overview-panel__empty">${todayTasks.length ? '오늘 할 일을 모두 완료했어요.' : '오늘 예정된 할 일이 없습니다.'}</p>`}</section>
+      <section class="overview-panel overview-focus" aria-labelledby="overview-focus-title"><div class="overview-panel__heading"><p class="overview-section__index">TODAY'S FOCUS</p><h2 id="overview-focus-title">오늘의 핵심 목표</h2></div>${focusTask ? `<div class="overview-focus__task"><label class="todo-item__check overview-focus__check"><input type="checkbox" data-task-toggle="${escapeHTML(focusTask.id)}" aria-label="완료 처리: ${escapeHTML(focusTask.title)}"><span aria-hidden="true"></span></label><div class="overview-focus__details"><span class="overview-focus__priority todo-priority--${escapeHTML(focusTask.priority || 'normal')}">${escapeHTML(({ high: '높음', normal: '보통', low: '낮음' })[focusTask.priority || 'normal'])}</span><div id="overview-focus-content" class="overview-focus__content" data-focus-content><strong>${escapeHTML(focusTask.title)}</strong>${focusTask.description ? `<span> · ${escapeHTML(focusTask.description)}</span>` : ''}</div><button type="button" class="btn btn--outline btn--small overview-focus__toggle" data-focus-toggle aria-controls="overview-focus-content" aria-expanded="false" hidden>더보기</button></div></div>` : `<p class="overview-panel__empty">${todayTasks.length ? '오늘 할 일을 모두 완료했어요.' : '오늘 예정된 할 일이 없습니다.'}</p>`}</section>
       <section class="overview-panel overview-progress" aria-labelledby="overview-progress-title"><div class="overview-panel__heading"><div><p class="overview-section__index">WEEKLY PROGRESS</p><h2 id="overview-progress-title">이번 주 할 일 완료율</h2></div><span class="overview-section__count">${escapeHTML(formatDate(weekStart, { month: 'short', day: 'numeric' }))} – ${escapeHTML(formatDate(weekEnd, { month: 'short', day: 'numeric' }))}</span></div><div class="overview-progress__numbers"><strong>${weekTasks.length ? `${progress}%` : '—'}</strong><span>${completedWeekTasks} / ${weekTasks.length} 완료</span></div><div class="overview-progress__track" role="progressbar" aria-label="이번 주 할 일 완료율" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${progress}"><span style="width:${progress}%"></span></div>${weekTasks.length ? '' : '<p class="overview-progress__note">이번 주 마감인 할 일이 없습니다.</p>'}</section>
     </div>
 
     <section class="overview-panel overview-inbox" aria-labelledby="overview-inbox-title">
       <div class="overview-panel__heading">
         <div><p class="overview-section__index">QUICK CAPTURE / INBOX</p><h2 id="overview-inbox-title">빠른 기록</h2></div>
+        <a class="overview-text-link" href="/todo#inbox" data-route="todo">전체 Inbox 보기 <span class="material-symbols-outlined" aria-hidden="true">north_east</span></a>
       </div>
       <form class="overview-inbox__form" data-inbox-capture novalidate>
         <label class="sr-only" for="overview-inbox-input">빠른 기록 내용</label>
@@ -115,7 +118,7 @@ export function renderOverview() {
 
     <section class="overview-panel overview-schedule" aria-labelledby="overview-schedule-title"><div class="overview-panel__heading"><div><p class="overview-section__index">TODAY'S SCHEDULE</p><h2 id="overview-schedule-title">오늘 예정된 일정</h2></div><a class="overview-text-link" href="/calendar" data-route="calendar">달력 보기 <span class="material-symbols-outlined" aria-hidden="true">north_east</span></a></div><ul class="overview-schedule__list">${scheduleMarkup}</ul></section>
 
-    <section class="overview-panel overview-habits" aria-labelledby="overview-habits-title"><div class="overview-panel__heading"><div><p class="overview-section__index">HABIT CHECK</p><h2 id="overview-habits-title">오늘 습관 체크 현황</h2></div><span class="overview-section__count">${completedHabitIds.size} / ${todayHabitTasks.length}</span></div><ul class="overview-habits__list">${habitMarkup}</ul><a class="overview-text-link" href="/habits" data-route="habits">습관 페이지 <span class="material-symbols-outlined" aria-hidden="true">north_east</span></a></section>
+      <section class="overview-panel overview-habits" aria-labelledby="overview-habits-title"><div class="overview-panel__heading"><div><p class="overview-section__index">HABIT CHECK</p><h2 id="overview-habits-title">오늘 습관 체크 현황</h2></div><span class="overview-section__count">${completedHabitIds.size} / ${todayHabits.length}</span></div><ul class="overview-habits__list">${habitMarkup}</ul><a class="overview-text-link" href="/habits" data-route="habits">습관 페이지 <span class="material-symbols-outlined" aria-hidden="true">north_east</span></a></section>
 
     <section class="overview-panel overview-upcoming" aria-labelledby="overview-upcoming-title"><div class="overview-panel__heading"><div><p class="overview-section__index">UPCOMING / NEXT 7 DAYS</p><h2 id="overview-upcoming-title">다가오는 주요 일정</h2></div><a class="overview-text-link" href="/calendar" data-route="calendar">달력 보기 <span class="material-symbols-outlined" aria-hidden="true">north_east</span></a></div><ul class="overview-upcoming__list">${upcomingMarkup}</ul></section>
     <section class="overview-panel overview-upcoming-tasks" aria-labelledby="overview-upcoming-tasks-title"><div class="overview-panel__heading"><div><p class="overview-section__index">UPCOMING TASKS / NEXT 7 DAYS</p><h2 id="overview-upcoming-tasks-title">다가오는 할 일</h2></div><a class="overview-text-link" href="/todo" data-route="todo">할 일 보기 <span class="material-symbols-outlined" aria-hidden="true">north_east</span></a></div><ul class="overview-upcoming-tasks__list">${upcomingTasksMarkup}</ul></section>

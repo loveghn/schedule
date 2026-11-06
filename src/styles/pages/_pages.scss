@@ -8,8 +8,8 @@
 @use "./statistics";
 
 .page {
-  max-width: 1600px;
-  margin: 0 auto;
+  max-width: inherit;
+  margin: 0;
   padding: 26px var(--page-padding) 64px;
 
   &-kicker {
@@ -33,12 +33,14 @@
 
     h1 {
       margin: 0;
-      font: tokens.$font-bold #{tokens.$font-size-page-title}/1.05 var(--font-display);
+      font: tokens.$font-bold #{tokens.$font-size-page-title}/ 1.05
+        var(--font-display);
     }
   }
 
   &-index {
-    font: tokens.$font-bold #{tokens.$font-size-page-index}/0.8 var(--font-display);
+    font: tokens.$font-bold #{tokens.$font-size-page-index}/ 0.8
+      var(--font-display);
   }
 
   &-rule {
@@ -51,13 +53,65 @@
   color: var(--page-accent, var(--color-accent));
 }
 
-.page--overview { --page-accent: var(--color-yellow); }
-.page--calendar { --page-accent: var(--color-cyan); }
-.page--activity { --page-accent: var(--color-red); }
-.page--todo { --page-accent: var(--color-pink); }
-.page--habits { --page-accent: var(--color-green); }
-.page--statistics { --page-accent: var(--color-indigo); }
-.page--settings { --page-accent: var(--color-cyan); }
+.page--overview {
+  --page-accent: var(--color-yellow);
+}
+.page--calendar {
+  --page-accent: var(--color-cyan);
+}
+.page--activity {
+  --page-accent: var(--color-red);
+}
+.page--todo {
+  --page-accent: var(--color-pink);
+}
+.page--habits {
+  --page-accent: var(--color-green);
+}
+.page--statistics {
+  --page-accent: var(--color-indigo);
+}
+.page--settings {
+  --page-accent: var(--color-cyan);
+}
+
+.storage-recovery {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: tokens.$spacing-6;
+  background: tokens.$color-white;
+
+  &__panel {
+    width: min(100%, 760px);
+    padding: clamp(tokens.$spacing-5, 5vw, tokens.$spacing-10);
+    border: tokens.$border-bold;
+  }
+
+  &__eyebrow {
+    margin: 0 0 tokens.$spacing-4;
+    font: tokens.$font-bold tokens.$font-size-xs var(--font-display);
+  }
+  h1 {
+    margin: 0;
+    font: tokens.$font-bold #{tokens.$font-size-2xl}/ 1.15 var(--font-body);
+  }
+  p:not(.storage-recovery__eyebrow) {
+    margin: tokens.$spacing-4 0;
+    color: tokens.$color-text-muted;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: tokens.$spacing-3;
+    margin-top: tokens.$spacing-6;
+  }
+  &__status {
+    min-height: tokens.$spacing-6;
+    font-size: tokens.$font-size-sm;
+  }
+}
 
 .hero-block {
   position: relative;
@@ -71,7 +125,7 @@
 
   h2 {
     margin: 0;
-    font: tokens.$font-bold #{tokens.$font-size-hero}/0.84 var(--font-display);
+    font: tokens.$font-bold #{tokens.$font-size-hero}/ 0.84 var(--font-display);
 
     span {
       color: var(--page-accent, var(--color-accent));
@@ -102,7 +156,7 @@
   }
 
   strong {
-    font: tokens.$font-bold #{tokens.$font-size-metric}/0.9 var(--font-display);
+    font: tokens.$font-bold #{tokens.$font-size-metric}/ 0.9 var(--font-display);
   }
 
   span {
@@ -179,7 +233,8 @@
 
   h2 {
     margin: 55px 0 12px;
-    font: tokens.$font-bold #{tokens.$font-size-placeholder}/0.9 var(--font-display);
+    font: tokens.$font-bold #{tokens.$font-size-placeholder}/ 0.9
+      var(--font-display);
   }
 
   p {
@@ -219,20 +274,26 @@
   .hero-block {
     padding: 24px 0 20px;
 
-    h2 { font-size: tokens.$font-size-hero-mobile; }
+    h2 {
+      font-size: tokens.$font-size-hero-mobile;
+    }
   }
 
   .metric {
     padding: 14px 10px;
 
-    strong { font-size: tokens.$font-size-metric-mobile; }
+    strong {
+      font-size: tokens.$font-size-metric-mobile;
+    }
 
     span {
       font-size: tokens.$font-size-xs;
     }
   }
 
-  .placeholder-panel h2 { font-size: tokens.$font-size-placeholder-mobile; }
+  .placeholder-panel h2 {
+    font-size: tokens.$font-size-placeholder-mobile;
+  }
 
   .timeline-row {
     grid-template-columns: 58px minmax(0, 1fr);
@@ -245,4 +306,3 @@
     padding-bottom: 10px;
   }
 }
-

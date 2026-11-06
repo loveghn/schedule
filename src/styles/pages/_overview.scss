@@ -66,7 +66,9 @@
   &-focus {
     background:var(--page-accent, $color-green);
 
-    &__task { display:grid; justify-items:start; gap:$spacing-2; padding-top:$spacing-5; }
+    &__task { display:grid; grid-template-columns:24px minmax(0,1fr); align-items:start; gap:$spacing-3; padding-top:$spacing-5; }
+    &__check { margin-top:$spacing-1; }
+    &__details { display:grid; justify-items:start; gap:$spacing-2; min-width:0; }
     &__content { display:-webkit-box; max-width:60ch; overflow:hidden; font-size:$font-size-sm; line-height:1.5; -webkit-box-orient:vertical; -webkit-line-clamp:2; }
     &__content strong { font-size:$font-size-xl; font-weight:$font-semibold; }
     &__content span { font-size:$font-size-sm; }

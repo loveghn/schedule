@@ -6,6 +6,16 @@
 const STORAGE_KEY = 'my-schedule-data';
 const DATA_VERSION = 1;
 
+let storageStatus = 'unknown';
+let corruptRawData = null;
+
+export class DataIntegrityError extends Error {
+  constructor(message = '저장된 데이터가 손상되었습니다.') {
+    super(message);
+    this.name = 'DataIntegrityError';
+  }
+}
+
 function createEmptyData() {
   return {
     version: DATA_VERSION,
@@ -24,11 +34,18 @@ function isValidData(value) {
   return (
     value &&
     typeof value === 'object' &&
+    !Array.isArray(value) &&
     Array.isArray(value.events) &&
     Array.isArray(value.tasks) &&
     Array.isArray(value.habits) &&
     Array.isArray(value.habitLogs) &&
-    Array.isArray(value.activities)
+    Array.isArray(value.activities) &&
+    ['events', 'tasks', 'habits', 'habitLogs', 'activities'].every((key) =>
+      value[key].every((item) => item && typeof item === 'object' && !Array.isArray(item)),
+    ) &&
+    (value.inbox === undefined || (Array.isArray(value.inbox) && value.inbox.every(isValidInboxItem))) &&
+    (value.categories === undefined || (Array.isArray(value.categories) && value.categories.every((item) => item && typeof item === 'object' && !Array.isArray(item)))) &&
+    (value.settings === undefined || (value.settings && typeof value.settings === 'object' && !Array.isArray(value.settings)))
   );
 }
 
@@ -44,55 +61,106 @@ export function isValidInboxItem(item) {
   );
 }
 
-function normalizeInbox(value) {
-  return Array.isArray(value) ? value.filter(isValidInboxItem) : [];
+function readStoredValue() {
+  let raw;
+  try {
+    raw = localStorage.getItem(STORAGE_KEY);
+  } catch (error) {
+    storageStatus = 'unavailable';
+    throw new Error('브라우저 저장소에 접근할 수 없습니다.', { cause: error });
+  }
+
+  if (raw === null) {
+    storageStatus = 'missing';
+    corruptRawData = null;
+    return { status: 'missing', raw: null, data: null };
+  }
+
+  try {
+    const data = JSON.parse(raw);
+    if (!isValidData(data)) throw new DataIntegrityError('저장된 데이터 필드가 올바르지 않습니다.');
+    storageStatus = 'ready';
+    corruptRawData = null;
+    return { status: 'ready', raw, data };
+  } catch (error) {
+    storageStatus = 'corrupt';
+    corruptRawData = raw;
+    return { status: 'corrupt', raw, data: null, error };
+  }
 }
 
 export function getData() {
+  const stored = readStoredValue();
+  if (stored.status === 'corrupt') {
+    console.error('[MY SCHEDULE] 데이터 읽기 실패:', stored.error);
+    throw new DataIntegrityError();
+  }
+  if (stored.status === 'missing') {
+    const initialData = createEmptyData();
+    saveData(initialData);
+    return initialData;
+  }
+
+  return {
+    ...createEmptyData(),
+    ...stored.data,
+    inbox: stored.data.inbox ?? [],
+    version: DATA_VERSION,
+  };
+}
+
+export function getStorageStatus() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-
-    if (!raw) {
-      const initialData = createEmptyData();
-      saveData(initialData);
-      return initialData;
-    }
-
-    const parsed = JSON.parse(raw);
-
-    if (!isValidData(parsed)) {
-      throw new Error('저장된 데이터 구조가 올바르지 않습니다.');
-    }
-
-    return {
-      ...createEmptyData(),
-      ...parsed,
-      inbox: normalizeInbox(parsed.inbox),
-      version: DATA_VERSION,
-    };
+    const stored = readStoredValue();
+    return { status: stored.status, raw: stored.status === 'corrupt' ? stored.raw : null };
   } catch (error) {
-    console.error('[MY SCHEDULE] 데이터 읽기 실패:', error);
-    return createEmptyData();
+    return { status: 'unavailable', raw: null, error };
   }
 }
 
-export function saveData(data) {
-  if (!isValidData(data) || (data.inbox !== undefined && (!Array.isArray(data.inbox) || !data.inbox.every(isValidInboxItem)))) {
-    throw new TypeError('저장할 데이터 구조가 올바르지 않습니다.');
-  }
+export function getCorruptRawData() {
+  const stored = readStoredValue();
+  return stored.status === 'corrupt' ? stored.raw : corruptRawData;
+}
 
-  const payload = {
-    ...data,
-    version: DATA_VERSION,
-  };
+function serializeData(data) {
+  return JSON.stringify({ ...data, version: DATA_VERSION });
+}
 
+function writeData(data) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    localStorage.setItem(STORAGE_KEY, serializeData(data));
+    storageStatus = 'ready';
+    corruptRawData = null;
     return true;
   } catch (error) {
     console.error('[MY SCHEDULE] 데이터 저장 실패:', error);
     return false;
   }
+}
+
+export function saveData(data) {
+  if (!isValidData(data)) {
+    throw new TypeError('저장할 데이터 구조가 올바르지 않습니다.');
+  }
+  try {
+    const current = readStoredValue();
+    if (current.status === 'corrupt' || current.status === 'unavailable') return false;
+    return writeData(data);
+  } catch {
+    return false;
+  }
+}
+
+/** Explicit user-approved recovery path. The caller must validate and confirm the replacement. */
+export function restoreData(data) {
+  if (!isValidData(data)) throw new TypeError('복구할 데이터 구조가 올바르지 않습니다.');
+  return writeData({ ...createEmptyData(), ...data, inbox: data.inbox ?? [] });
+}
+
+/** Explicit user-approved reset path. */
+export function resetStoredData() {
+  return writeData(createEmptyData());
 }
 
 export function updateData(updater) {

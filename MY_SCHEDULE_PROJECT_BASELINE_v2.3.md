@@ -1,5 +1,7 @@
 # MY SCHEDULE
 
+> **보관 문서:** 이 파일은 v2.3 과거 기준 문서입니다. 현재 공식 기준은 [MY_SCHEDULE_PROJECT_BASELINE_v2.4.md](./MY_SCHEDULE_PROJECT_BASELINE_v2.4.md)이며, 새 작업은 v2.4를 따릅니다.
+
 ## Personal Life Management Web App
 
 ### Project Baseline Specification · v2.3

@@ -21,7 +21,6 @@
   overflow: hidden;
 
   background: var(--sidebar-accent, var(--color-primary));
-  border-right: $border-heavy;
   transition: background-color $transition-base;
 
   &__middle {
@@ -60,13 +59,27 @@
   }
 }
 
-.sidebar[data-route="overview"] { --sidebar-accent: var(--color-yellow); }
-.sidebar[data-route="calendar"] { --sidebar-accent: var(--color-cyan); }
-.sidebar[data-route="activity"] { --sidebar-accent: var(--color-red); }
-.sidebar[data-route="todo"] { --sidebar-accent: var(--color-pink); }
-.sidebar[data-route="habits"] { --sidebar-accent: var(--color-green); }
-.sidebar[data-route="statistics"] { --sidebar-accent: var(--color-indigo); }
-.sidebar[data-route="settings"] { --sidebar-accent: var(--color-cyan); }
+.sidebar[data-route="overview"] {
+  --sidebar-accent: var(--color-yellow);
+}
+.sidebar[data-route="calendar"] {
+  --sidebar-accent: var(--color-cyan);
+}
+.sidebar[data-route="activity"] {
+  --sidebar-accent: var(--color-red);
+}
+.sidebar[data-route="todo"] {
+  --sidebar-accent: var(--color-pink);
+}
+.sidebar[data-route="habits"] {
+  --sidebar-accent: var(--color-green);
+}
+.sidebar[data-route="statistics"] {
+  --sidebar-accent: var(--color-indigo);
+}
+.sidebar[data-route="settings"] {
+  --sidebar-accent: var(--color-cyan);
+}
 
 // ========================================
 // BRAND
@@ -134,9 +147,13 @@
   font-weight: $font-bold;
   text-align: left;
   cursor: pointer;
-  transition: color $transition-fast, background-color $transition-fast;
+  transition:
+    color $transition-fast,
+    background-color $transition-fast;
 
-  .material-symbols-outlined { font-size: $font-size-lg; }
+  .material-symbols-outlined {
+    font-size: $font-size-lg;
+  }
 
   &:hover,
   &:focus-visible {

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { addInboxItem, deleteInboxItem, getInboxItems, updateInboxItem } from './inbox.js';
+import { addInboxItem, convertInboxItemToTask, deleteInboxItem, getInboxItems, updateInboxItem } from './inbox.js';
 import { getData, saveData } from './storage.js';
 
 const STORAGE_KEY = 'my-schedule-data';
@@ -91,14 +91,46 @@ test('Inbox data remains available after reloading storage and is isolated from 
   });
 });
 
-test('invalid Inbox records are isolated on read and rejected on save without overwriting storage', () => {
+test('Inbox conversion adds the task and removes the source in one saved snapshot', () => {
+  const inboxItem = { id: 'inbox-1', text: '전환할 할 일', createdAt: '2026-11-06T00:00:00.000Z', updatedAt: '2026-11-06T00:00:00.000Z' };
+  withLocalStorage({ ...legacyData(), inbox: [inboxItem] }, (readRaw) => {
+    const data = getData();
+    const task = { id: 'task-converted', title: inboxItem.text, recurrence: { frequency: 'none' }, completed: false, failed: false };
+    assert.equal(convertInboxItemToTask(data, inboxItem.id, task), true);
+    assert.equal(saveData(data), true);
+
+    const persisted = JSON.parse(readRaw());
+    assert.equal(persisted.tasks.some((item) => item.id === task.id), true);
+    assert.equal(persisted.inbox.some((item) => item.id === inboxItem.id), false);
+  });
+});
+
+test('failed Inbox conversion save leaves the stored Inbox and task collections unchanged', () => {
+  const previousStorage = globalThis.localStorage;
+  const inboxItem = { id: 'inbox-1', text: '보존할 기록', createdAt: '2026-11-06T00:00:00.000Z', updatedAt: '2026-11-06T00:00:00.000Z' };
+  const raw = JSON.stringify({ ...legacyData(), inbox: [inboxItem] });
+  globalThis.localStorage = {
+    getItem: () => raw,
+    setItem: () => { throw new Error('quota exceeded'); },
+  };
+  try {
+    const data = getData();
+    const task = { id: 'task-converted', title: inboxItem.text, recurrence: { frequency: 'none' }, completed: false, failed: false };
+    assert.equal(convertInboxItemToTask(data, inboxItem.id, task), true);
+    assert.equal(saveData(data), false);
+    assert.equal(globalThis.localStorage.getItem(STORAGE_KEY), raw);
+  } finally {
+    if (previousStorage === undefined) delete globalThis.localStorage;
+    else globalThis.localStorage = previousStorage;
+  }
+});
+
+test('invalid Inbox records block reads and ordinary writes without overwriting storage', () => {
   const data = { ...legacyData(), inbox: [{ id: 'bad', text: '유효하지 않은 항목' }] };
   withLocalStorage(data, (readRaw) => {
-    const loaded = getData();
-    assert.deepEqual(loaded.inbox, []);
-    assert.equal(loaded.tasks[0].id, 'task-1');
     const before = readRaw();
-    assert.throws(() => saveData({ ...loaded, inbox: [{ id: '', text: '' }] }), /저장할 데이터 구조/);
+    assert.throws(() => getData(), /손상/);
+    assert.equal(saveData(legacyData()), false);
     assert.equal(readRaw(), before);
   });
 });

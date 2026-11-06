@@ -70,7 +70,27 @@ function renderCategoryBars(categories) {
 
 function renderEventBars(buckets) {
   const max = Math.max(1, ...buckets.map(({ events }) => events));
-  return `<div class="statistics-event-bars" role="img" aria-label="기간별 일정 기록 수">${buckets.map((bucket) => `<div class="statistics-event-bars__column" title="${escapeHTML(bucket.label)} 일정 ${bucket.events}건"><span>${bucket.events || ''}</span><i style="--bar-height:${bucket.events ? Math.max((bucket.events / max) * 100, 4) : 0}%"></i><small>${escapeHTML(bucket.label)}</small></div>`).join('')}</div>`;
+  return `<div class="statistics-event-bars" style="--bucket-count:${buckets.length}" role="img" aria-label="기간과 겹치는 일정 수">${buckets.map((bucket) => `<div class="statistics-event-bars__column" title="${escapeHTML(bucket.label)} · 일정 ${bucket.events}건"><span>${bucket.events || ''}</span><i style="--bar-height:${bucket.events ? Math.max((bucket.events / max) * 100, 4) : 0}%"></i><small>${escapeHTML(bucket.label)}</small></div>`).join('')}</div>`;
+}
+
+function renderHabitBars(buckets) {
+  const hasOccurrences = buckets.some((bucket) => bucket.habitOccurrences);
+  if (!hasOccurrences) return '<p class="statistics-empty">선택한 기간에 예정된 습관 회차가 없습니다.</p>';
+  return `<div class="statistics-event-bars statistics-habit-bars" style="--bucket-count:${buckets.length}" role="img" aria-label="기간별 습관 완료율">${buckets.map((bucket) => {
+    const rate = bucket.habitOccurrences ? Math.round((bucket.habitCompleted / bucket.habitOccurrences) * 100) : 0;
+    return `<div class="statistics-event-bars__column" title="${escapeHTML(bucket.label)} · ${bucket.habitCompleted}/${bucket.habitOccurrences} 완료"><span>${bucket.habitOccurrences ? `${rate}%` : ''}</span><i style="--bar-height:${bucket.habitOccurrences ? Math.max(rate, 4) : 0}%"></i><small>${escapeHTML(bucket.label)}</small></div>`;
+  }).join('')}</div>`;
+}
+
+function renderHabitSummary(habits) {
+  const rate = habits.completionRate === null ? '—' : `${habits.completionRate}%`;
+  return `<dl class="statistics-habit-summary">
+    <div><dt>추적 습관</dt><dd>${habits.tracked}</dd></div>
+    <div><dt>예정 회차</dt><dd>${habits.occurrences}</dd></div>
+    <div><dt>완료 기록</dt><dd>${habits.completed}</dd></div>
+    <div><dt>실패 기록</dt><dd>${habits.failed}</dd></div>
+    <div><dt>완료율</dt><dd>${rate}</dd></div>
+  </dl>`;
 }
 
 export function renderStatistics() {
@@ -85,14 +105,15 @@ export function renderStatistics() {
       <article class="statistics-metric statistics-metric--primary"><span>완료한 할 일</span><strong>${stats.totals.completed}</strong><small>${escapeHTML(tasksLabel)}</small></article>
       <article class="statistics-metric"><span>할 일 완료율</span><strong>${stats.completionRate === null ? '—' : `${stats.completionRate}%`}</strong><small>${stats.totals.tasks ? `${stats.totals.completed} / ${stats.totals.tasks}건` : '분석할 기록이 없습니다'}</small></article>
       <article class="statistics-metric"><span>실패 기록</span><strong>${stats.totals.failed}</strong><small>${stats.totals.tasks ? '기간 내 마감 할 일' : '분석할 기록이 없습니다'}</small></article>
-      <article class="statistics-metric"><span>쌓인 일정</span><strong>${stats.totals.events}</strong><small>${stats.periodLabel} 동안 시작한 일정</small></article>
+      <article class="statistics-metric"><span>기간과 겹친 일정</span><strong>${stats.totals.events}</strong><small>${stats.periodLabel} 중 하루 이상 겹친 일정</small></article>
     </section>
     <div class="statistics-detail-grid">
       <section class="statistics-panel statistics-trend" aria-labelledby="statistics-trend-title"><div class="statistics-panel__heading"><div><p class="statistics-section-index">TASK COMPLETION</p><h2 id="statistics-trend-title">완료율 추이</h2></div><span>${escapeHTML(tasksLabel)}</span></div>${renderLineChart(stats.buckets)}</section>
       <section class="statistics-panel" aria-labelledby="statistics-status-title"><div class="statistics-panel__heading"><div><p class="statistics-section-index">TASK STATUS</p><h2 id="statistics-status-title">할 일 처리 현황</h2></div><span>${stats.totals.tasks}건</span></div>${renderDonut(stats)}</section>
       <section class="statistics-panel" aria-labelledby="statistics-category-title"><div class="statistics-panel__heading"><div><p class="statistics-section-index">CATEGORY BREAKDOWN</p><h2 id="statistics-category-title">카테고리별 기록</h2></div><span>완료 / 전체</span></div>${renderCategoryBars(stats.categories)}</section>
     </div>
-    <section class="statistics-panel statistics-events" aria-labelledby="statistics-events-title"><div class="statistics-panel__heading"><div><p class="statistics-section-index">SCHEDULE LOG</p><h2 id="statistics-events-title">일정 기록 추이</h2></div><span>${stats.periodLabel} · 총 ${stats.totals.events}건</span></div>${renderEventBars(stats.buckets)}</section>
+    <section class="statistics-panel statistics-habits" aria-labelledby="statistics-habits-title"><div class="statistics-panel__heading"><div><p class="statistics-section-index">HABIT PERFORMANCE</p><h2 id="statistics-habits-title">습관 수행 기록</h2></div><span>${escapeHTML(stats.periodLabel)} · 오늘까지</span></div>${renderHabitSummary(stats.habits)}${renderHabitBars(stats.buckets)}</section>
+    <section class="statistics-panel statistics-events" aria-labelledby="statistics-events-title"><div class="statistics-panel__heading"><div><p class="statistics-section-index">SCHEDULE OVERLAP</p><h2 id="statistics-events-title">기간과 겹친 일정</h2></div><span>${stats.periodLabel} · 총 ${stats.totals.events}건</span></div>${renderEventBars(stats.buckets)}</section>
   </article>`;
 }
 

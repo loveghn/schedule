@@ -1,11 +1,11 @@
 # AGENTS.md — MY SCHEDULE
 
 이 문서는 Codex 및 AI 개발 도구가 MY SCHEDULE 프로젝트를 수정할 때 따라야 하는 상시 작업 규칙이다.
-프로젝트의 제품·디자인·기능 기준은 루트의 `MY_SCHEDULE_PROJECT_BASELINE_v2.3.md`를 우선 확인한다.
+프로젝트의 제품·디자인·기능 기준은 루트의 `MY_SCHEDULE_PROJECT_BASELINE_v2.4.md`를 우선 확인한다.
 
 ## 1. 작업 전 필수 확인
 
-1. 작업을 시작하기 전에 이 파일과 `MY_SCHEDULE_PROJECT_BASELINE_v2.3.md`를 읽는다.
+1. 작업을 시작하기 전에 이 파일과 `MY_SCHEDULE_PROJECT_BASELINE_v2.4.md`를 읽는다.
 2. `README.md`, `package.json` 및 수정 대상 파일의 현재 구현을 확인한다.
 3. 요청한 기능이 이미 구현되어 있는지, 관련 데이터와 다른 페이지에 어떤 영향을 주는지 먼저 조사한다.
 4. 기준 문서와 기존 코드가 다르면 임의로 어느 한쪽을 선택하지 말고 차이와 영향을 보고한다.
