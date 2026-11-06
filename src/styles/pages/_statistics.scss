@@ -1,0 +1,474 @@
+@use "../abstracts/tokens" as *;
+
+.statistics-page {
+  --page-accent: var(--color-indigo);
+}
+
+.statistics-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-4;
+  margin-top: $spacing-6;
+
+  > p {
+    color: $color-text-muted;
+    font-size: $font-size-sm;
+  }
+}
+
+.statistics-period {
+  display: flex;
+  gap: $spacing-1;
+
+  .is-active {
+    background: $color-indigo;
+  }
+}
+
+.statistics-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: $spacing-4;
+  border: $border-bold;
+}
+
+.statistics-metric {
+  display: flex;
+  min-width: 0;
+  min-height: 132px;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: $spacing-3;
+  padding: $spacing-4;
+  border-right: $border-medium;
+
+  &:last-child {
+    border-right: 0;
+  }
+
+  > span {
+    font-size: $font-size-sm;
+    font-weight: $font-semibold;
+  }
+
+  > strong {
+    overflow-wrap: anywhere;
+    font-family: $font-display;
+    font-size: $font-size-2xl;
+    font-weight: $font-bold;
+    line-height: 1;
+  }
+
+  > small {
+    color: $color-text-muted;
+    font-size: $font-size-xs;
+  }
+
+  &--primary {
+    background: var(--page-accent);
+
+    > small {
+      color: $color-black;
+    }
+  }
+}
+
+.statistics-panel {
+  min-width: 0;
+  padding: $spacing-5;
+  border: $border-bold;
+  background: $color-white;
+}
+
+.statistics-events {
+  margin-top: $spacing-5;
+}
+
+.statistics-panel__heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: $spacing-3;
+  padding-bottom: $spacing-3;
+  border-bottom: $border-medium;
+
+  > div {
+    min-width: 0;
+  }
+
+  h2 {
+    margin-top: $spacing-2;
+    font-family: $font-display;
+    font-size: $font-size-lg;
+    font-weight: $font-semibold;
+    line-height: 1.2;
+  }
+
+  > span {
+    flex: 0 0 auto;
+    color: $color-text-muted;
+    font-size: $font-size-xs;
+    text-align: right;
+  }
+}
+
+.statistics-section-index {
+  font-family: $font-display;
+  font-size: $font-size-xs;
+  font-weight: $font-bold;
+  letter-spacing: 0.04em;
+}
+
+.statistics-chart {
+  position: relative;
+  padding-top: $spacing-4;
+
+  &__plot {
+    position: relative;
+    height: 220px;
+
+    svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+  }
+
+  &__grid {
+    stroke: $color-muted;
+    stroke-width: 1;
+  }
+
+  &__line {
+    fill: none;
+    stroke: $color-indigo;
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  &__point {
+    fill: $color-white;
+    stroke: $color-indigo;
+    stroke-width: 3;
+  }
+
+  &__y-axis {
+    position: absolute;
+    inset: 16px auto 8px 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 36px;
+    color: $color-gray-dark;
+    font-size: $font-size-xs;
+
+    span {
+      position: absolute;
+      top: var(--axis-position);
+      transform: translateY(-50%);
+    }
+  }
+
+  &__x-axis {
+    display: grid;
+    grid-template-columns: repeat(var(--axis-count), minmax(0, 1fr));
+    margin: 0 $spacing-3 0 42px;
+    color: $color-gray-dark;
+    font-size: $font-size-xs;
+    text-align: center;
+
+    span {
+      min-width: 0;
+      white-space: nowrap;
+    }
+  }
+
+  &__empty {
+    position: absolute;
+    inset: 45% $spacing-4 auto 52px;
+    color: $color-text-muted;
+    font-size: $font-size-sm;
+    text-align: center;
+  }
+}
+
+.statistics-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+  gap: $spacing-5;
+  margin-top: $spacing-5;
+}
+
+.statistics-donut {
+  display: grid;
+  grid-template-columns: minmax(140px, 0.9fr) minmax(120px, 1fr);
+  align-items: center;
+  gap: $spacing-5;
+  min-height: 230px;
+  padding-top: $spacing-4;
+
+  &__graphic {
+    position: relative;
+    width: min(100%, 190px);
+    aspect-ratio: 1;
+    justify-self: center;
+
+    svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    circle {
+      fill: none;
+      stroke: $color-muted;
+      stroke-width: 18;
+
+      &.is-completed {
+        stroke: $color-indigo;
+      }
+
+      &.is-failed {
+        stroke: $color-red;
+      }
+
+      &.is-pending {
+        stroke: $color-muted;
+      }
+    }
+
+    > div {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    strong {
+      font-family: $font-display;
+      font-size: $font-size-xl;
+      font-weight: $font-bold;
+    }
+
+    span {
+      color: $color-text-muted;
+      font-size: $font-size-xs;
+    }
+  }
+
+  &__legend {
+    display: grid;
+    gap: $spacing-3;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+      display: grid;
+      grid-template-columns: 14px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: $spacing-2;
+      font-size: $font-size-sm;
+    }
+
+    i {
+      width: 14px;
+      height: 14px;
+      border: $border-thin;
+      background: $color-muted;
+
+      &.is-completed {
+        background: $color-indigo;
+      }
+
+      &.is-failed {
+        background: $color-red;
+      }
+    }
+
+    strong {
+      font-family: $font-display;
+      font-weight: $font-bold;
+    }
+  }
+
+  &--empty {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: $spacing-2;
+
+    .statistics-donut__graphic circle {
+      stroke-dasharray: 8 5;
+    }
+  }
+
+  p {
+    color: $color-text-muted;
+    font-size: $font-size-sm;
+    text-align: center;
+  }
+}
+
+.statistics-empty {
+  color: $color-text-muted;
+  font-size: $font-size-sm;
+  text-align: center;
+}
+
+.statistics-categories {
+  display: grid;
+  gap: $spacing-4;
+  margin: 0;
+  padding: $spacing-5 0 0;
+  list-style: none;
+
+  &__label {
+    display: flex;
+    justify-content: space-between;
+    gap: $spacing-3;
+    margin-bottom: $spacing-2;
+    font-size: $font-size-sm;
+
+    strong {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    span {
+      flex: 0 0 auto;
+      color: $color-text-muted;
+      font-size: $font-size-xs;
+    }
+  }
+
+  &__track {
+    height: 12px;
+    overflow: hidden;
+    border: $border-thin;
+    background: $color-white;
+  }
+
+  &__bar {
+    display: block;
+    width: var(--bar-width);
+    height: 100%;
+    background: var(--category-color, $color-indigo);
+  }
+}
+
+.statistics-event-bars {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: $spacing-2;
+  min-height: 180px;
+  padding: $spacing-5 0 0;
+
+  &__column {
+    display: grid;
+    grid-template-rows: 20px minmax(60px, 1fr) 20px;
+    align-items: end;
+    justify-items: center;
+    gap: $spacing-2;
+    min-width: 0;
+
+    > span {
+      font-family: $font-display;
+      font-size: $font-size-xs;
+      font-weight: $font-semibold;
+    }
+
+    > i {
+      align-self: end;
+      width: min(100%, 34px);
+      height: var(--bar-height);
+      min-height: 2px;
+      border: $border-thin;
+      background: $color-indigo;
+    }
+
+    > small {
+      color: $color-text-muted;
+      font-size: $font-size-xs;
+      white-space: nowrap;
+    }
+  }
+}
+
+@media (max-width: #{$breakpoint-tablet}) {
+  .statistics-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .statistics-metric {
+    &:nth-child(2) {
+      border-right: 0;
+    }
+
+    &:nth-child(-n + 2) {
+      border-bottom: $border-medium;
+    }
+  }
+
+  .statistics-detail-grid {
+    grid-template-columns: 1fr;
+    gap: $spacing-3;
+  }
+}
+
+@media (max-width: #{$breakpoint-mobile}) {
+  .statistics-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .statistics-period {
+    width: 100%;
+
+    .btn {
+      flex: 1;
+      padding-inline: $spacing-2;
+    }
+  }
+
+  .statistics-metric {
+    min-height: 108px;
+    padding: $spacing-3;
+
+    > strong {
+      font-size: $font-size-xl;
+    }
+  }
+
+  .statistics-panel {
+    padding: $spacing-3;
+  }
+
+  .statistics-panel__heading h2 {
+    font-size: $font-size-md;
+  }
+
+  .statistics-chart__plot {
+    height: 180px;
+  }
+
+  .statistics-chart__empty {
+    top: 42%;
+    font-size: $font-size-xs;
+  }
+
+  .statistics-donut {
+    grid-template-columns: minmax(110px, 0.8fr) minmax(100px, 1fr);
+    gap: $spacing-3;
+  }
+
+  .statistics-event-bars {
+    gap: $spacing-1;
+  }
+}

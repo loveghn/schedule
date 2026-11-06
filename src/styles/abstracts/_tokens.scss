@@ -1,0 +1,165 @@
+// ========================================
+// DESIGN TOKENS
+// MY SCHEDULE
+// ========================================
+
+// Color
+$color-black: #000000;
+$color-white: #ffffff;
+$color-muted: #ededed;
+$color-gray: $color-muted;
+$color-gray-dark: #777777;
+$color-gray-light: $color-muted;
+$color-white-overlay: rgba(255, 255, 255, 0.35);
+$color-black-overlay: rgba(0, 0, 0, 0.5);
+$color-modal-overlay: rgba(0, 0, 0, 0.6);
+$color-green: #00e43d;
+$color-yellow: #ffd200;
+$color-cyan: #00c3ff;
+$color-pink: #ff4eff;
+$color-red: #ff5b58;
+$color-indigo: #6b5cff;
+
+// Semantic colors
+$color-text: $color-black;
+$color-text-muted: $color-gray-dark;
+$color-background: $color-white;
+$color-border: $color-black;
+$color-accent: $color-green;
+$color-highlight: $color-pink;
+
+// Typography
+$font-display: "Space Grotesk", "Paperlogy", sans-serif;
+$font-body: "Space Grotesk", "Paperlogy", sans-serif;
+$font-icon: "Material Symbols Outlined", sans-serif;
+$font-size-xs: 12px;
+$font-size-sm: 14px;
+$font-size-md: 16px;
+$font-size-lg: 20px;
+$font-size-xl: 28px;
+$font-size-2xl: 36px;
+$font-size-3xl: 52px;
+$font-size-page-title: 38px;
+$font-size-page-index: 42px;
+$font-size-stat: 40px;
+$font-size-hero: 104px;
+$font-size-hero-mobile: 64px;
+$font-size-metric: 56px;
+$font-size-metric-mobile: 32px;
+$font-size-placeholder: 72px;
+$font-size-placeholder-mobile: 40px;
+$font-size-mobile-heading: 30px;
+$font-size-progress-value: 34px;
+$font-size-icon-large: 32px;
+
+// Font Weight
+$font-regular: 300;
+$font-normal: 400;
+$font-medium: 500;
+$font-semibold: 600;
+$font-bold: 700;
+
+// Spacing
+$spacing-1: 4px;
+$spacing-2: 8px;
+$spacing-3: 12px;
+$spacing-4: 16px;
+$spacing-5: 20px;
+$spacing-6: 24px;
+$spacing-8: 32px;
+$spacing-10: 40px;
+$spacing-12: 48px;
+$spacing-16: 64px;
+
+// Border
+$border-thin: 1px solid $color-black;
+$border-subtle: 1px solid $color-muted;
+$border-grid: 1px solid $color-muted;
+$border-grid-heading: 1.5px solid $color-black;
+$border-medium: 2px solid $color-black;
+$border-bold: 3px solid $color-black;
+$border-heavy: 4px solid $color-black;
+
+// Layout
+$sidebar-width: 260px;
+$sidebar-width-tablet: 220px;
+
+$header-height: 76px;
+$header-height-mobile: 56px;
+
+$detail-panel-width: 360px;
+
+$page-padding: 28px;
+$page-padding-tablet: 24px;
+$page-padding-mobile: 16px;
+
+// Breakpoints
+$breakpoint-mobile: 767px;
+$breakpoint-tablet: 1199px;
+
+// Z-index
+$z-base: 1;
+$z-header: 10;
+$z-sidebar: 20;
+$z-overlay: 90;
+$z-bottom-sheet: 100;
+
+// Motion
+$transition-fast: 150ms ease;
+$transition-base: 250ms ease;
+$transition-bold: 350ms cubic-bezier(0.76, 0, 0.24, 1);
+
+// ========================================
+// CSS CUSTOM PROPERTIES
+// ========================================
+
+:root {
+  --color-black: #{$color-black};
+  --color-white: #{$color-white};
+  --color-muted: #{$color-muted};
+  --color-gray: #{$color-gray};
+  --color-gray-dark: #{$color-gray-dark};
+  --color-gray-light: #{$color-gray-light};
+  --color-primary: #{$color-green};
+  --color-green: #{$color-green};
+  --color-yellow: #{$color-yellow};
+  --color-cyan: #{$color-cyan};
+  --color-pink: #{$color-pink};
+  --color-red: #{$color-red};
+  --color-indigo: #{$color-indigo};
+
+  --font-display: #{$font-display};
+  --font-body: #{$font-body};
+
+  --border-thin: #{$border-thin};
+  --border-medium: #{$border-medium};
+  --border-bold: #{$border-bold};
+  --border-heavy: #{$border-heavy};
+
+  --sidebar-width: #{$sidebar-width};
+  --header-height: #{$header-height};
+  --detail-panel-width: #{$detail-panel-width};
+
+  --page-padding: #{$page-padding};
+
+  --z-sidebar: #{$z-sidebar};
+  --z-overlay: #{$z-overlay};
+
+  --transition-fast: #{$transition-fast};
+  --transition-base: #{$transition-base};
+  --transition-bold: #{$transition-bold};
+}
+
+@media (max-width: #{$breakpoint-tablet}) {
+  :root {
+    --sidebar-width: #{$sidebar-width-tablet};
+    --page-padding: #{$page-padding-tablet};
+  }
+}
+
+@media (max-width: #{$breakpoint-mobile}) {
+  :root {
+    --page-padding: #{$page-padding-mobile};
+    --header-height: #{$header-height-mobile};
+  }
+}

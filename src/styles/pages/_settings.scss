@@ -1,0 +1,224 @@
+@use "../abstracts/tokens" as *;
+
+.settings-section {
+  margin-top: $spacing-8;
+  padding: $spacing-5;
+  border: $border-bold;
+  background: $color-white;
+
+  &__heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-4;
+    padding-bottom: $spacing-4;
+    border-bottom: $border-medium;
+
+    > div { min-width: 0; }
+
+    h2 {
+      margin-top: $spacing-2;
+      font-family: $font-display;
+      font-size: $font-size-lg;
+      font-weight: $font-semibold;
+      line-height: 1.2;
+    }
+
+    p:last-child {
+      margin-top: $spacing-2;
+      color: $color-text-muted;
+      font-size: $font-size-sm;
+    }
+  }
+}
+
+.settings-section__index {
+  font-family: $font-display;
+  font-size: $font-size-xs;
+  font-weight: $font-bold;
+  letter-spacing: 0.04em;
+}
+
+.settings-category-list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.settings-category {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: $spacing-3;
+  min-height: 70px;
+  padding: $spacing-3 0;
+  border-bottom: $border-subtle;
+
+  &:last-child { border-bottom: 0; }
+
+  &__swatch {
+    width: 20px;
+    height: 20px;
+    border: $border-medium;
+    background: var(--category-color);
+  }
+
+  &__details {
+    display: grid;
+    gap: $spacing-1;
+    min-width: 0;
+
+    strong {
+      overflow-wrap: anywhere;
+      font-size: $font-size-md;
+      font-weight: $font-semibold;
+    }
+
+    > span {
+      color: $color-text-muted;
+      font-size: $font-size-xs;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: $spacing-2;
+
+    .btn--icon {
+      width: 40px;
+      min-width: 40px;
+      height: 40px;
+    }
+  }
+}
+
+.settings-empty {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: $spacing-2;
+  min-height: 130px;
+  text-align: center;
+
+  strong {
+    font-size: $font-size-md;
+    font-weight: $font-semibold;
+  }
+
+  span {
+    color: $color-text-muted;
+    font-size: $font-size-sm;
+  }
+}
+
+.settings-defaults {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+  align-items: end;
+  gap: $spacing-4;
+  padding-top: $spacing-5;
+
+  .btn { min-height: 44px; }
+}
+
+.settings-data-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-3;
+  padding-top: $spacing-5;
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-2;
+
+    &[aria-busy="true"] { opacity: 0.65; }
+  }
+
+  .material-symbols-outlined { font-size: $font-size-lg; }
+}
+
+.settings-data-note {
+  margin-top: $spacing-3;
+  color: $color-text-muted;
+  font-size: $font-size-xs;
+}
+
+.settings-category-form {
+  display: grid;
+  gap: $spacing-5;
+}
+
+.settings-color-field {
+  min-width: 0;
+  border: 0;
+
+  legend { margin-bottom: $spacing-3; }
+}
+
+.settings-color-inputs {
+  display: grid;
+  grid-template-columns: 60px minmax(0, 320px);
+  align-items: center;
+  gap: $spacing-3;
+
+  > .form-group__help {
+    grid-column: 2;
+    margin-top: -$spacing-2;
+  }
+}
+
+.settings-color-swatch-label {
+  display: block;
+  width: 56px;
+  height: 44px;
+
+  input[type="color"] {
+    width: 56px;
+    height: 44px;
+    padding: $spacing-1;
+    border: $border-medium;
+    background: $color-white;
+    cursor: pointer;
+  }
+}
+
+.settings-color-code {
+  font-family: $font-display;
+  font-weight: $font-semibold;
+  text-transform: uppercase;
+}
+
+.settings-delete-message {
+  overflow-wrap: anywhere;
+  font-size: $font-size-md;
+  line-height: 1.6;
+}
+
+@media (max-width: #{$breakpoint-mobile}) {
+  .settings-section {
+    margin-top: $spacing-5;
+    padding: $spacing-3;
+
+    &__heading {
+      h2 { font-size: $font-size-md; }
+      p:last-child { font-size: $font-size-xs; }
+    }
+  }
+
+  .settings-defaults {
+    grid-template-columns: 1fr;
+    gap: $spacing-3;
+  }
+
+  .settings-data-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .settings-color-inputs {
+    grid-template-columns: 56px minmax(0, 1fr);
+  }
+}

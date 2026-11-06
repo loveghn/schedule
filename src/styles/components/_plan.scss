@@ -1,0 +1,157 @@
+@use "../abstracts/tokens" as *;
+
+.plan-form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+}
+
+.event-color-field,
+.todo-repeat-weekdays,
+.todo-repeat-monthly {
+  min-width: 0;
+  border: 0;
+}
+
+.event-color-field legend,
+.todo-repeat-weekdays legend,
+.todo-repeat-monthly legend {
+  margin-bottom: $spacing-2;
+}
+
+.event-color-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-1;
+}
+
+.event-color-choice {
+  position: relative;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  cursor: pointer;
+}
+
+.event-color-choice input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.event-color-choice span {
+  width: 26px;
+  height: 26px;
+  border: $border-medium;
+  background: var(--swatch);
+  transition: transform $transition-fast;
+}
+
+.event-color-choice input:checked + span {
+  outline: $border-medium;
+  outline-offset: 3px;
+  transform: scale(0.88);
+}
+.event-color-choice input:focus-visible + span {
+  outline: $border-bold;
+  outline-color: $color-pink;
+  outline-offset: 3px;
+}
+
+.event-all-day {
+  width: fit-content;
+}
+.event-time-fields[hidden] {
+  display: none;
+}
+
+.todo-repeat-options {
+  display: grid;
+  gap: $spacing-4;
+  padding: $spacing-4;
+  border: $border-medium;
+  background: $color-gray-light;
+}
+.todo-repeat-options[hidden] {
+  display: none;
+}
+.todo-repeat-ending {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: $spacing-3;
+  align-items: start;
+}
+.todo-repeat-ending .form-group[hidden] {
+  display: none;
+}
+.todo-repeat-weekdays > div,
+.todo-repeat-monthly__choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+}
+.todo-repeat-weekdays label,
+.todo-repeat-monthly__choices label {
+  position: relative;
+  cursor: pointer;
+}
+.todo-repeat-weekdays input,
+.todo-repeat-monthly__choices input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+.todo-repeat-weekdays label span,
+.todo-repeat-monthly__choices label span {
+  display: grid;
+  min-width: 38px;
+  min-height: 38px;
+  place-items: center;
+  padding: 0 $spacing-2;
+  border: $border-medium;
+  background: $color-white;
+  font-size: $font-size-sm;
+  font-weight: $font-semibold;
+}
+.todo-repeat-weekdays input:checked + span,
+.todo-repeat-monthly__choices input:checked + span {
+  background: $color-green;
+}
+.todo-repeat-weekdays input:focus-visible + span,
+.todo-repeat-monthly__choices input:focus-visible + span {
+  outline: $border-bold;
+  outline-color: $color-pink;
+  outline-offset: 2px;
+}
+.todo-repeat-day,
+.todo-repeat-weekday {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  margin-top: $spacing-3;
+  font-size: $font-size-sm;
+}
+.todo-repeat-day[hidden],
+.todo-repeat-weekday[hidden] {
+  display: none;
+}
+.todo-repeat-weekday select {
+  width: auto;
+  min-width: 120px;
+}
+
+@media (max-width: 767px) {
+  .event-color-options {
+    gap: 6px;
+  }
+  .todo-repeat-weekday {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .todo-repeat-ending {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

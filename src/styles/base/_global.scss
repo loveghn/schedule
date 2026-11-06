@@ -1,0 +1,207 @@
+// ========================================
+// GLOBAL STYLES
+// ========================================
+
+@use "../abstracts/tokens" as *;
+
+// ----------------------------------------
+// Base
+// ----------------------------------------
+
+html {
+  font-size: $font-size-md;
+  font-family: $font-body;
+}
+
+body {
+  color: $color-text;
+  background-color: $color-background;
+  font-family: $font-body;
+  font-size: $font-size-md;
+  font-weight: $font-normal;
+  line-height: 1.6;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// ----------------------------------------
+// Typography
+// ----------------------------------------
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: $color-black;
+  font-family: $font-display;
+  font-weight: $font-bold;
+  line-height: 1.15;
+}
+
+h1 {
+  font-size: $font-size-3xl;
+}
+
+h2 {
+  font-size: $font-size-2xl;
+}
+
+h3 {
+  font-size: $font-size-xl;
+  font-weight: $font-semibold;
+}
+
+p {
+  line-height: 1.6;
+}
+
+small,
+sub,
+sup {
+  font-size: $font-size-xs;
+}
+
+// Display Typography
+// Metadata
+.meta-text,
+.eyebrow {
+  font-family: $font-display;
+  font-size: $font-size-xs;
+  font-weight: $font-bold;
+}
+
+.material-symbols-outlined {
+  display: inline-block;
+  direction: ltr;
+  font-family: $font-icon;
+  font-size: $font-size-lg;
+  font-style: normal;
+  font-weight: $font-normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  word-wrap: normal;
+  font-feature-settings: 'liga';
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  vertical-align: middle;
+}
+
+// Numbers and dates
+.header-date,
+.nav-link__number,
+.sidebar__version {
+  font-family: $font-display;
+  font-weight: $font-bold;
+}
+
+// ----------------------------------------
+// Display Typography
+// ----------------------------------------
+
+.display-text {
+  font-family: $font-display;
+  font-weight: $font-bold;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.meta-text,
+.eyebrow {
+  font-family: $font-display;
+  font-size: $font-size-xs;
+  font-weight: $font-bold;
+  text-transform: uppercase;
+}
+
+// 영문 숫자 및 날짜
+.header-date,
+.nav-link__number,
+.sidebar__version {
+  font-family: $font-display;
+}
+
+// ----------------------------------------
+// Form Elements
+// ----------------------------------------
+
+input,
+select,
+textarea {
+  width: 100%;
+  min-width: 0;
+  border: $border-medium;
+  border-radius: 0;
+  background-color: $color-white;
+  font-family: $font-body;
+  outline-offset: 3px;
+
+  &:focus {
+    outline: $border-medium;
+    outline-color: $color-green;
+  }
+
+  &::placeholder {
+    color: $color-gray-dark;
+    opacity: 1;
+  }
+}
+
+// ----------------------------------------
+// Utility
+// ----------------------------------------
+
+.text-muted {
+  color: $color-text-muted;
+}
+
+.text-green {
+  color: $color-green;
+}
+
+.text-pink {
+  color: $color-pink;
+}
+
+.bg-green {
+  background-color: $color-green;
+}
+
+.bg-pink {
+  background-color: $color-pink;
+}
+
+.border-black {
+  border: $border-bold;
+}
+
+// ----------------------------------------
+// Accessibility
+// ----------------------------------------
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.sr-only-focusable:focus,
+.sr-only-focusable:active {
+  position: static;
+  width: auto;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}

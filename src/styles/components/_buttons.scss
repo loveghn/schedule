@@ -1,0 +1,195 @@
+@use "../abstracts/tokens" as *;
+
+// ========================================
+// BUTTON BASE
+// ========================================
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-2;
+
+  min-height: 44px;
+  padding: $spacing-3 $spacing-5;
+
+  border: $border-medium;
+  border-radius: 0;
+
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  font-weight: $font-bold;
+  line-height: 1.4;
+
+  cursor: pointer;
+
+  transition:
+    color $transition-fast,
+    background-color $transition-fast,
+    border-color $transition-fast,
+    transform $transition-fast;
+
+  &:focus-visible {
+    outline: $border-bold;
+    outline-color: $color-green;
+    outline-offset: $spacing-1;
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(2px);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+}
+
+// ========================================
+// BUTTON VARIANTS
+// ========================================
+
+.btn--primary {
+  color: $color-black;
+  background: $color-green;
+  border-color: $color-black;
+
+  &:hover:not(:disabled) {
+    color: $color-white;
+    background: $color-black;
+  }
+}
+
+.btn--secondary {
+  color: $color-white;
+  background: $color-black;
+  border-color: $color-black;
+
+  &:hover:not(:disabled) {
+    color: $color-black;
+    background: $color-green;
+  }
+}
+
+.btn--outline {
+  color: $color-black;
+  background: $color-white;
+  border-color: $color-black;
+
+  &:hover:not(:disabled) {
+    background: $color-gray;
+  }
+}
+
+.btn--pink {
+  color: $color-black;
+  background: $color-pink;
+  border-color: $color-black;
+
+  &:hover:not(:disabled) {
+    background: $color-white;
+  }
+}
+
+.btn--danger {
+  color: $color-white;
+  background: $color-black;
+  border-color: $color-black;
+
+  &:hover:not(:disabled) {
+    color: $color-black;
+    background: $color-pink;
+  }
+}
+
+// ========================================
+// BUTTON SIZES
+// ========================================
+
+.btn--small {
+  min-height: 36px;
+  padding: $spacing-2 $spacing-3;
+  font-size: $font-size-xs;
+}
+
+.btn--medium {
+  min-height: 44px;
+  padding: $spacing-3 $spacing-5;
+  font-size: $font-size-sm;
+}
+
+.btn--large {
+  min-height: 52px;
+  padding: $spacing-4 $spacing-6;
+  font-size: $font-size-md;
+}
+
+// ========================================
+// BUTTON MODIFIERS
+// ========================================
+
+.btn--full {
+  width: 100%;
+}
+
+.btn--icon {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  padding: 0;
+  font-size: $font-size-lg;
+}
+
+.btn--icon .material-symbols-outlined {
+  font-size: inherit;
+}
+
+// ========================================
+// BUTTON LOADING
+// ========================================
+
+.btn.is-loading {
+  position: relative;
+  pointer-events: none;
+
+  .btn__label {
+    visibility: hidden;
+  }
+
+  &::after {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+
+    border: $border-medium;
+    border-right-color: transparent;
+    border-radius: 50%;
+
+    content: "";
+    animation: button-spin 700ms linear infinite;
+  }
+}
+
+@keyframes button-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// ========================================
+// REDUCED MOTION
+// ========================================
+
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .btn.is-loading::after {
+    animation: none;
+    transition: none;
+  }
+}

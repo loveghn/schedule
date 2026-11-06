@@ -1,0 +1,216 @@
+@use "../abstracts/tokens" as *;
+
+// ========================================
+// APP SHELL
+// ========================================
+
+html,
+body,
+#app {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.app-shell {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--color-white);
+}
+
+// ========================================
+// MAIN SHELL
+// ========================================
+
+.main-shell {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  grid-column: 2;
+  min-height: 0;
+  overflow: hidden;
+}
+
+// ========================================
+// GLOBAL HEADER
+// ========================================
+
+.global-header {
+  flex: 0 0 var(--header-height);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-4;
+
+  min-width: 0;
+  padding: 0 var(--page-padding);
+
+  border-bottom: $border-heavy;
+}
+
+.global-header__left,
+.global-header__right {
+  display: flex;
+  align-items: center;
+  gap: $spacing-4;
+}
+
+.global-header__left {
+  min-width: 0;
+}
+
+.global-header__left .eyebrow {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.global-header__right {
+  flex-shrink: 0;
+}
+
+.header-date {
+  font-family: var(--font-display);
+  font-size: $font-size-xs;
+  font-weight: $font-bold;
+  white-space: nowrap;
+}
+
+.status-mark {
+  width: $spacing-3;
+  height: $spacing-3;
+  flex-shrink: 0;
+
+  background: var(--color-primary);
+  border: $border-thin;
+}
+
+// ========================================
+// PAGE OUTLET
+// ========================================
+
+.page-outlet {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--color-white);
+  scrollbar-gutter: stable;
+}
+
+// ========================================
+// MOBILE MENU BUTTON
+// ========================================
+
+.mobile-menu {
+  display: none;
+  flex-shrink: 0;
+}
+
+// ========================================
+// MOBILE OVERLAY
+// ========================================
+
+.mobile-overlay {
+  display: none;
+}
+
+// ========================================
+// TABLET
+// ========================================
+
+@media (max-width: #{$breakpoint-tablet}) {
+  .global-header {
+    gap: $spacing-3;
+  }
+}
+
+// ========================================
+// MOBILE
+// ========================================
+
+@media (max-width: #{$breakpoint-mobile}) {
+  .app-shell {
+    display: block;
+  }
+
+  .main-shell {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+  }
+
+  .global-header {
+    flex-basis: var(--header-height);
+    min-height: var(--header-height);
+    padding: 0 var(--page-padding);
+  }
+
+  .global-header__left,
+  .global-header__right {
+    gap: $spacing-2;
+  }
+
+  .global-header__left .eyebrow {
+    font-size: $font-size-xs;
+  }
+
+  .header-date {
+    display: none;
+  }
+
+  .mobile-menu {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: $spacing-10;
+    height: $spacing-10;
+
+    border: $border-medium;
+    background: var(--color-white);
+    font-size: $font-size-lg;
+  }
+
+  .mobile-overlay {
+    position: fixed;
+    z-index: $z-sidebar - 1;
+    inset: 0;
+
+    display: block;
+
+    background: $color-black-overlay;
+    opacity: 0;
+    visibility: hidden;
+
+    transition:
+      opacity $transition-base,
+      visibility $transition-base;
+  }
+
+  .mobile-overlay.is-visible {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  body.is-menu-open {
+    overflow: hidden;
+  }
+}
+
+// ========================================
+// REDUCED MOTION
+// ========================================
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-overlay {
+    transition: none;
+  }
+}

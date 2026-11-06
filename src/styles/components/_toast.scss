@@ -1,0 +1,187 @@
+@use "../abstracts/tokens" as *;
+
+// ========================================
+// TOAST CONTAINER
+// ========================================
+
+.toast-container {
+  position: fixed;
+  z-index: 200;
+
+  top: $spacing-6;
+  right: $spacing-6;
+
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+
+  width: min(380px, calc(100% - #{$spacing-8}));
+
+  pointer-events: none;
+}
+
+// ========================================
+// TOAST
+// ========================================
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-3;
+
+  width: 100%;
+  padding: $spacing-4;
+
+  border: $border-bold;
+  background: $color-white;
+
+  box-shadow: 4px 4px 0 $color-black;
+
+  pointer-events: auto;
+
+  animation: toast-enter $transition-base;
+
+  &__indicator {
+    width: 12px;
+    height: 12px;
+    flex: 0 0 12px;
+
+    margin-top: 5px;
+
+    background: $color-green;
+    border: $border-medium;
+  }
+
+  &__content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__title {
+    font-size: $font-size-md;
+    font-weight: $font-semibold;
+    line-height: 1.4;
+  }
+
+  &__message {
+    margin-top: $spacing-1;
+
+    color: $color-text-muted;
+    font-size: $font-size-sm;
+    line-height: 1.5;
+
+    overflow-wrap: anywhere;
+  }
+
+  &__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 28px;
+    height: 28px;
+    flex: 0 0 28px;
+
+    border: 0;
+    background: transparent;
+
+    font-size: $font-size-lg;
+    font-weight: $font-semibold;
+
+    cursor: pointer;
+
+    &:hover {
+      background: $color-gray;
+    }
+
+    &:focus-visible {
+      outline: $border-bold;
+      outline-color: $color-green;
+      outline-offset: 2px;
+    }
+  }
+
+  // SUCCESS
+  &--success {
+    .toast__indicator {
+      background: $color-green;
+    }
+  }
+
+  // ERROR
+  &--error {
+    .toast__indicator {
+      background: $color-pink;
+    }
+  }
+
+  // WARNING
+  &--warning {
+    .toast__indicator {
+      background: $color-pink;
+    }
+  }
+
+  // INFO
+  &--info {
+    .toast__indicator {
+      background: $color-black;
+    }
+  }
+
+  &.is-leaving {
+    animation: toast-leave $transition-fast forwards;
+  }
+}
+
+// ========================================
+// ANIMATION
+// ========================================
+
+@keyframes toast-enter {
+  from {
+    opacity: 0;
+    transform: translateX($spacing-4);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes toast-leave {
+  to {
+    opacity: 0;
+    transform: translateX($spacing-4);
+  }
+}
+
+// ========================================
+// MOBILE
+// ========================================
+
+@media (max-width: #{$breakpoint-mobile}) {
+  .toast-container {
+    top: $spacing-3;
+    right: $spacing-3;
+    left: $spacing-3;
+
+    width: auto;
+  }
+
+  .toast {
+    box-shadow: 3px 3px 0 $color-black;
+  }
+}
+
+// ========================================
+// REDUCED MOTION
+// ========================================
+
+@media (prefers-reduced-motion: reduce) {
+  .toast,
+  .toast.is-leaving {
+    animation: none;
+  }
+}

@@ -1,0 +1,154 @@
+@use "../abstracts/tokens" as *;
+
+// ========================================
+// BADGE BASE
+// ========================================
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-2;
+
+  min-height: 24px;
+  padding: $spacing-1 $spacing-2;
+
+  border: $border-medium;
+  border-radius: 0;
+
+  font-family: $font-body;
+  font-size: $font-size-xs;
+  font-weight: $font-semibold;
+  line-height: 1.4;
+  white-space: nowrap;
+
+  &__dot {
+    width: $spacing-2;
+    height: $spacing-2;
+    flex: 0 0 auto;
+
+    background: currentColor;
+    border-radius: 50%;
+  }
+}
+
+// ========================================
+// STATUS
+// ========================================
+
+.badge--success {
+  color: $color-black;
+  background: $color-green;
+}
+
+.badge--pending {
+  color: $color-black;
+  background: $color-gray;
+}
+
+.badge--progress {
+  color: $color-white;
+  background: $color-black;
+}
+
+.badge--cancelled {
+  color: $color-black;
+  background: $color-white;
+  text-decoration: line-through;
+}
+
+// ========================================
+// PRIORITY
+// ========================================
+
+.badge--high {
+  color: $color-black;
+  background: $color-pink;
+}
+
+.badge--normal {
+  color: $color-black;
+  background: $color-gray;
+}
+
+.badge--low {
+  color: $color-black;
+  background: $color-white;
+}
+
+// ========================================
+// CATEGORY
+// ========================================
+
+.badge--category {
+  color: $color-black;
+  background: var(--category-color, $color-muted);
+  border-style: dashed;
+}
+
+// ========================================
+// ACTIVITY
+// ========================================
+
+.badge--running {
+  color: $color-black;
+  background: $color-green;
+}
+
+.badge--cycling {
+  color: $color-black;
+  background: $color-pink;
+}
+
+.badge--strength {
+  color: $color-white;
+  background: $color-black;
+}
+
+.badge--other {
+  color: $color-black;
+  background: $color-gray;
+}
+
+// ========================================
+// HABIT
+// ========================================
+
+.badge--achieved {
+  color: $color-black;
+  background: $color-green;
+}
+
+.badge--missed {
+  color: $color-black;
+  background: $color-white;
+  border-style: dashed;
+}
+
+// ========================================
+// SIZE
+// ========================================
+
+.badge--small {
+  min-height: 24px;
+  padding: $spacing-1 $spacing-2;
+  font-size: $font-size-xs;
+}
+
+.badge--large {
+  min-height: 32px;
+  padding: $spacing-2 $spacing-3;
+  font-size: $font-size-sm;
+}
+
+// ========================================
+// MODIFIERS
+// ========================================
+
+.badge--outline {
+  background: transparent;
+}
+
+.badge--full {
+  width: 100%;
+}

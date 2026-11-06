@@ -1,0 +1,202 @@
+@use "../abstracts/tokens" as *;
+
+.schedule-log-page {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 26px var(--page-padding) $spacing-16;
+}
+
+.schedule-log-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 28px;
+  border: $border-bold;
+
+  > div {
+    display: flex;
+    min-height: 112px;
+    flex-direction: column;
+    gap: $spacing-3;
+    padding: $spacing-5;
+    border-right: $border-medium;
+
+    &:last-child { border-right: 0; }
+    &:first-child { background: var(--page-accent, $color-red); }
+  }
+
+  span {
+    font-size: $font-size-sm;
+    font-weight: $font-semibold;
+  }
+
+  strong {
+    font: $font-bold #{$font-size-2xl}/1 $font-display;
+  }
+}
+
+.schedule-log-listing {
+  margin-top: $spacing-8;
+}
+
+.schedule-log-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-4;
+  padding-bottom: $spacing-3;
+  border-bottom: $border-bold;
+
+  > span {
+    flex: 0 0 auto;
+    font: $font-semibold $font-size-xs $font-display;
+  }
+
+  @media (max-width: #{$breakpoint-mobile}) {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+.schedule-log-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-1;
+}
+
+.schedule-log-filter {
+  min-height: 38px;
+  padding: $spacing-2 $spacing-3;
+  border: $border-medium;
+  border-color: transparent;
+  background: transparent;
+  font: $font-semibold $font-size-sm $font-body;
+  cursor: pointer;
+
+  &:hover,
+  &.is-active {
+    border-color: $color-black;
+    background: $color-green;
+  }
+
+  &:focus-visible {
+    outline: $border-bold;
+    outline-color: $color-pink;
+    outline-offset: $spacing-1;
+  }
+}
+
+.schedule-record-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.schedule-record {
+  display: grid;
+  grid-template-columns: 10px minmax(150px, 220px) minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: $spacing-4;
+  min-height: 106px;
+  padding: $spacing-4 0;
+  border-bottom: $border-subtle;
+
+  &__color {
+    align-self: stretch;
+    border: $border-thin;
+    background: var(--record-color);
+  }
+
+  &__date {
+    display: grid;
+    gap: $spacing-1;
+
+    time {
+      font-family: $font-display;
+      font-size: $font-size-sm;
+      font-weight: $font-semibold;
+      line-height: 1.4;
+    }
+
+    > span {
+      color: $color-text-muted;
+      font-size: $font-size-xs;
+    }
+  }
+
+  &__details {
+    min-width: 0;
+
+    strong {
+      display: block;
+      overflow-wrap: anywhere;
+      font-size: $font-size-md;
+      font-weight: $font-semibold;
+    }
+
+    p {
+      margin-top: $spacing-1;
+      color: $color-text-muted;
+      font-size: $font-size-sm;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  &__status {
+    padding: 5px $spacing-2;
+    border: $border-thin;
+    background: $color-green;
+    font-size: $font-size-xs;
+    font-weight: $font-semibold;
+
+    &.is-past { background: $color-gray-light; }
+  }
+
+  &__actions {
+    display: flex;
+    gap: $spacing-2;
+  }
+
+  @media (max-width: #{$breakpoint-mobile}) {
+    grid-template-columns: 8px minmax(0, 1fr) auto;
+    align-items: start;
+    gap: $spacing-3;
+
+    &__color { grid-row: 1 / span 2; }
+    &__date { grid-column: 2; }
+    &__details { grid-column: 2 / 4; }
+    &__status { grid-column: 3; grid-row: 1; }
+    &__actions { grid-column: 2 / 4; justify-self: end; }
+  }
+}
+
+.schedule-log-empty {
+  display: grid;
+  justify-items: center;
+  gap: $spacing-2;
+  min-height: 240px;
+  padding: $spacing-8;
+  border-bottom: $border-medium;
+  text-align: center;
+
+  > .material-symbols-outlined { font-size: $font-size-icon-large; }
+  strong { font-size: $font-size-md; font-weight: $font-semibold; }
+  p { color: $color-text-muted; font-size: $font-size-sm; }
+}
+
+@media (max-width: #{$breakpoint-mobile}) {
+  .schedule-log-page { padding-top: 20px; }
+
+  .schedule-log-summary > div {
+    min-height: 88px;
+    gap: $spacing-2;
+    padding: $spacing-3;
+  }
+
+  .schedule-log-summary {
+    span { font-size: $font-size-xs; }
+    strong { font-size: $font-size-xl; }
+  }
+
+  .schedule-log-listing { margin-top: $spacing-6; }
+}

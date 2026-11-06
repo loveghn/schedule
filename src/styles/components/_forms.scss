@@ -1,0 +1,299 @@
+@use "../abstracts/tokens" as *;
+
+// ========================================
+// FORM GROUP
+// ========================================
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+  width: 100%;
+
+  &__label {
+    display: flex;
+    align-items: center;
+    gap: $spacing-1;
+
+    font-size: $font-size-sm;
+    font-weight: $font-bold;
+  }
+
+  &__required {
+    color: $color-pink;
+  }
+
+  &__help {
+    color: $color-text-muted;
+    font-size: $font-size-xs;
+    line-height: 1.5;
+  }
+
+  &__error {
+    color: $color-black;
+    font-size: $font-size-xs;
+    font-weight: $font-semibold;
+  }
+
+  &.is-invalid {
+    .form-control {
+      border-color: $color-pink;
+      background-color: $color-pink;
+    }
+  }
+}
+
+.form-group__label-row {
+  display: flex;
+  min-height: 24px;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-2;
+}
+
+.title-color-control {
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: $spacing-1;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.title-color-control__option {
+  position: relative;
+  display: grid;
+  width: 32px;
+  height: 28px;
+  place-items: center;
+  cursor: pointer;
+}
+
+.title-color-control__option input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.title-color-control__option span {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  border: $border-thin;
+  font-size: $font-size-sm;
+  font-weight: $font-bold;
+}
+
+.title-color-control__option--black { color: $color-black; background: $color-white; }
+.title-color-control__option--white { color: $color-white; background: $color-black; }
+.title-color-control__option input:checked + span { box-shadow: inset 0 0 0 3px $color-green; }
+.title-color-control__option input:focus-visible + span { outline: $border-bold; outline-color: $color-green; outline-offset: 2px; }
+
+// ========================================
+// FORM CONTROL
+// ========================================
+
+.form-control {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: $spacing-3;
+
+  border: $border-medium;
+  border-radius: 0;
+
+  color: $color-black;
+  background-color: $color-white;
+
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  font-weight: $font-regular;
+  line-height: 1.5;
+
+  transition:
+    border-color $transition-fast,
+    background-color $transition-fast;
+
+  &::placeholder {
+    color: $color-gray-dark;
+    opacity: 1;
+  }
+
+  &:focus {
+    border-color: $color-green;
+    outline: $border-medium;
+    outline-color: $color-green;
+    outline-offset: 1px;
+  }
+
+  &:disabled,
+  &[readonly] {
+    background-color: $color-gray-light;
+    cursor: not-allowed;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+  }
+}
+
+// ========================================
+// TEXTAREA
+// ========================================
+
+.form-control--textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+// ========================================
+// SELECT
+// ========================================
+
+.form-control--select {
+  appearance: none;
+  padding-right: $spacing-10;
+
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='2'%3E%3Cpath d='m3 6 5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right $spacing-3 center;
+}
+
+// ========================================
+// CHECKBOX
+// ========================================
+
+.form-check {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-2;
+
+  min-height: 28px;
+
+  cursor: pointer;
+
+  &__input {
+    appearance: none;
+    position: relative;
+
+    width: 20px;
+    height: 20px;
+    flex: 0 0 20px;
+
+    margin: 0;
+
+    border: $border-medium;
+    border-radius: 0;
+
+    background-color: $color-white;
+    cursor: pointer;
+
+    &:checked {
+      background-color: $color-green;
+
+      &::after {
+        position: absolute;
+        top: 2px;
+        left: 6px;
+
+        width: 5px;
+        height: 10px;
+
+        border-right: $border-medium;
+        border-bottom: $border-medium;
+
+        content: "";
+        transform: rotate(45deg);
+      }
+    }
+
+    &:focus-visible {
+      outline: $border-bold;
+      outline-color: $color-green;
+      outline-offset: 2px;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+
+  &__label {
+    font-size: $font-size-sm;
+    font-weight: $font-medium;
+    line-height: 1.5;
+  }
+}
+
+// ========================================
+// FORM ROW
+// ========================================
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: $spacing-4;
+}
+
+// ========================================
+// SUNDAY-FIRST DATE PICKER
+// ========================================
+
+.date-picker { position:relative; min-width:0; }
+.date-picker > .form-control { padding-right:48px; cursor:pointer; }
+.date-picker__trigger { position:absolute; top:50%; right:$spacing-1; display:grid; width:36px; height:36px; place-items:center; border:$border-thin; background:$color-white; font-size:$font-size-lg; transform:translateY(-50%); }
+.date-picker__trigger:hover,
+.date-picker__trigger:focus-visible { background:$color-green; }
+.date-picker__calendar { position:fixed; inset:auto; width:min(320px,calc(100vw - 24px)); margin:0; padding:$spacing-3; border:$border-bold; border-radius:0; color:$color-black; background:$color-white; box-shadow:0 8px 24px $color-black-overlay; }
+.date-picker__header { display:grid; grid-template-columns:44px minmax(0,1fr) 44px; align-items:center; gap:$spacing-2; padding-bottom:$spacing-3; border-bottom:$border-medium; }
+.date-picker__header .btn--icon { width:40px; min-width:40px; height:40px; }
+.date-picker__month { text-align:center; font-family:$font-display; font-size:$font-size-md; font-weight:$font-semibold; }
+.date-picker__days { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:2px; padding:$spacing-3 0; }
+.date-picker__weekday,
+.date-picker__day { display:grid; min-width:0; min-height:36px; place-items:center; }
+.date-picker__weekday { color:$color-text-muted; font-size:$font-size-xs; font-weight:$font-semibold; }
+.date-picker__weekday.is-weekend { color:$color-red; }
+.date-picker__day { border:$border-thin; background:$color-white; font-size:$font-size-sm; }
+.date-picker__day:hover,
+.date-picker__day:focus-visible { background:$color-muted; }
+.date-picker__day.is-outside { color:$color-gray-dark; background:$color-gray-light; }
+.date-picker__day.is-today { border:$border-medium; }
+.date-picker__day.is-selected { background:$color-green; font-weight:$font-semibold; }
+.date-picker__day.is-selected.is-outside { background:$color-yellow; }
+.date-picker__today { width:100%; min-height:40px; border-top:$border-medium; font-size:$font-size-sm; font-weight:$font-semibold; }
+.date-picker__today:hover,
+.date-picker__today:focus-visible { background:$color-yellow; }
+
+// ========================================
+// FORM ACTIONS
+// ========================================
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+
+  margin-top: $spacing-6;
+}
+
+// ========================================
+// MOBILE
+// ========================================
+
+@media (max-width: #{$breakpoint-mobile}) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    > .btn {
+      flex: 1;
+    }
+  }
+}
